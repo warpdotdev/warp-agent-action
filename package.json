@@ -1,0 +1,23 @@
+{
+  "name": "warp-cli-action",
+  "version": "0.0.1",
+  "main": "index.js",
+  "scripts": {
+    "bundle": "rollup --config rollup.config.js"
+  },
+  "keywords": [],
+  "author": "Warp Team <dev@warp.dev>",
+  "license": "MIT",
+  "description": "",
+  "dependencies": {
+    "@actions/core": "^1.11.1",
+    "@actions/exec": "^1.1.1",
+    "@actions/github": "^6.0.1",
+    "@actions/tool-cache": "^2.0.2"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^29.0.0",
+    "@rollup/plugin-node-resolve": "^16.0.3",
+    "rollup": "^4.53.2"
+  }
+}
