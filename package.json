@@ -2,13 +2,34 @@
   "name": "warp-cli-action",
   "version": "0.0.1",
   "main": "index.js",
-  "scripts": {
-    "bundle": "rollup --config rollup.config.js"
-  },
-  "keywords": [],
+  "private": true,
+  "keywords": [
+    "actions"
+  ],
+  "type": "module",
   "author": "Warp Team <dev@warp.dev>",
   "license": "MIT",
-  "description": "",
+  "description": "Run the Warp agent in a GitHub workflow",
+  "homepage": "https://github.com/warpdotdev/warp-agent-action#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/warpdotdev/warp-agent-action.git"
+  },
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "npm run bundle",
+    "bundle": "npm run format:write && npm run package",
+    "format:write": "npx prettier --write .",
+    "format:check": "npx prettier --check .",
+    "lint": "npx eslint .",
+    "package": "npx rollup --config rollup.config.js",
+    "act": "npm run package && act --container-architecture linux/amd64 -j run_warp_test -s WARP_API_KEY"
+  },
   "dependencies": {
     "@actions/core": "^1.11.1",
     "@actions/exec": "^1.1.1",
@@ -16,8 +37,17 @@
     "@actions/tool-cache": "^2.0.2"
   },
   "devDependencies": {
+    "@eslint/compat": "^1.4.0",
+    "@eslint/js": "^9.39.1",
     "@rollup/plugin-commonjs": "^29.0.0",
     "@rollup/plugin-node-resolve": "^16.0.3",
+    "eslint": "^9.39.1",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.6.2",
+    "prettier-eslint": "^16.4.2",
     "rollup": "^4.53.2"
+  },
+  "optionalDependencies": {
+    "@rollup/rollup-linux-x64-gnu": "*"
   }
 }

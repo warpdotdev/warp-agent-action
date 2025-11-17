@@ -3,7 +3,9 @@
 This file provides guidance to WARP (warp.dev) when working with code in this repository.
 
 ## Code Architecture
+
 This repository contains a GitHub Action that runs the Warp Agent.
+
 - **Type**: Node.js action (targeting `node24` runtime).
 - **Entry Point**: `src/index.js`.
 - **Distribution**: The code is bundled using Rollup into `dist/index.mjs`.
@@ -14,9 +16,11 @@ This repository contains a GitHub Action that runs the Warp Agent.
   4.  Sets the `agent_output` output.
 
 ## Development
+
 - **Install Dependencies**: `npm install`
 - **Build**: `npm run bundle`
-  - **Important**: You must run the bundle command and commit the changes in `dist/` for them to take effect in the action.
+  - **Important**: You must run the bundle command and commit the changes in `dist/` for them to
+    take effect in the action.
 
 ## Testing
 

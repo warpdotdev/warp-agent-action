@@ -1,12 +1,13 @@
 import * as process$1 from 'process';
+import * as require$$1 from 'path';
+import require$$1__default from 'path';
 import require$$0 from 'os';
 import require$$0$1 from 'crypto';
-import require$$1 from 'fs';
-import require$$1$5 from 'path';
+import require$$1$1 from 'fs';
 import require$$2 from 'http';
 import require$$3 from 'https';
 import require$$0$4 from 'net';
-import require$$1$1 from 'tls';
+import require$$1$2 from 'tls';
 import require$$4 from 'events';
 import require$$0$3 from 'assert';
 import require$$0$2 from 'util';
@@ -15,14 +16,14 @@ import require$$7 from 'buffer';
 import require$$8 from 'querystring';
 import require$$14 from 'stream/web';
 import require$$0$7 from 'node:stream';
-import require$$1$2 from 'node:util';
+import require$$1$3 from 'node:util';
 import require$$0$6 from 'node:events';
 import require$$0$8 from 'worker_threads';
 import require$$2$1 from 'perf_hooks';
 import require$$5 from 'util/types';
 import require$$4$1 from 'async_hooks';
-import require$$1$3 from 'console';
-import require$$1$4 from 'url';
+import require$$1$4 from 'console';
+import require$$1$5 from 'url';
 import require$$3$1 from 'zlib';
 import require$$6 from 'string_decoder';
 import require$$0$9 from 'diagnostics_channel';
@@ -223,7 +224,7 @@ function requireFileCommand () {
 	// We use any as a valid input type
 	/* eslint-disable @typescript-eslint/no-explicit-any */
 	const crypto = __importStar(require$$0$1);
-	const fs = __importStar(require$$1);
+	const fs = __importStar(require$$1$1);
 	const os = __importStar(require$$0);
 	const utils_1 = requireUtils$1();
 	function issueFileCommand(command, message) {
@@ -373,7 +374,7 @@ var hasRequiredTunnel$1;
 function requireTunnel$1 () {
 	if (hasRequiredTunnel$1) return tunnel$1;
 	hasRequiredTunnel$1 = 1;
-	var tls = require$$1$1;
+	var tls = require$$1$2;
 	var http = require$$2;
 	var https = require$$3;
 	var events = require$$4;
@@ -1755,7 +1756,7 @@ function requireSbmh () {
 	 * by Hongli Lai at: https://github.com/FooBarWidget/boyer-moore-horspool
 	 */
 	const EventEmitter = require$$0$6.EventEmitter;
-	const inherits = require$$1$2.inherits;
+	const inherits = require$$1$3.inherits;
 
 	function SBMH (needle) {
 	  if (typeof needle === 'string') {
@@ -1964,7 +1965,7 @@ function requirePartStream () {
 	if (hasRequiredPartStream) return PartStream_1;
 	hasRequiredPartStream = 1;
 
-	const inherits = require$$1$2.inherits;
+	const inherits = require$$1$3.inherits;
 	const ReadableStream = require$$0$7.Readable;
 
 	function PartStream (opts) {
@@ -2010,7 +2011,7 @@ function requireHeaderParser () {
 	hasRequiredHeaderParser = 1;
 
 	const EventEmitter = require$$0$6.EventEmitter;
-	const inherits = require$$1$2.inherits;
+	const inherits = require$$1$3.inherits;
 	const getLimit = requireGetLimit();
 
 	const StreamSearch = requireSbmh();
@@ -2118,7 +2119,7 @@ function requireDicer () {
 	hasRequiredDicer = 1;
 
 	const WritableStream = require$$0$7.Writable;
-	const inherits = require$$1$2.inherits;
+	const inherits = require$$1$3.inherits;
 
 	const StreamSearch = requireSbmh();
 
@@ -2695,7 +2696,7 @@ function requireMultipart () {
 	//     -- this will require modifications to utils.parseParams
 
 	const { Readable } = require$$0$7;
-	const { inherits } = require$$1$2;
+	const { inherits } = require$$1$3;
 
 	const Dicer = requireDicer();
 
@@ -3261,7 +3262,7 @@ function requireMain () {
 	hasRequiredMain = 1;
 
 	const WritableStream = require$$0$7.Writable;
-	const { inherits } = require$$1$2;
+	const { inherits } = require$$1$3;
 	const Dicer = requireDicer();
 
 	const MultipartParser = requireMultipart();
@@ -8085,7 +8086,7 @@ function requireConnect () {
 	    let socket;
 	    if (protocol === 'https:') {
 	      if (!tls) {
-	        tls = require$$1$1;
+	        tls = require$$1$2;
 	      }
 	      servername = servername || options.servername || util.getServerName(host) || null;
 
@@ -14109,7 +14110,7 @@ function requirePendingInterceptorsFormatter () {
 	hasRequiredPendingInterceptorsFormatter = 1;
 
 	const { Transform } = require$$0$5;
-	const { Console } = require$$1$3;
+	const { Console } = require$$1$4;
 
 	/**
 	 * Gets the output of `console.table(…)` as a string.
@@ -14336,7 +14337,7 @@ function requireProxyAgent () {
 	hasRequiredProxyAgent = 1;
 
 	const { kProxy, kClose, kDestroy, kInterceptors } = requireSymbols$4();
-	const { URL } = require$$1$4;
+	const { URL } = require$$1$5;
 	const Agent = requireAgent();
 	const Pool = requirePool();
 	const DispatcherBase = requireDispatcherBase();
@@ -25201,7 +25202,7 @@ function requireSummary () {
 		Object.defineProperty(exports$1, "__esModule", { value: true });
 		exports$1.summary = exports$1.markdownSummary = exports$1.SUMMARY_DOCS_URL = exports$1.SUMMARY_ENV_VAR = void 0;
 		const os_1 = require$$0;
-		const fs_1 = require$$1;
+		const fs_1 = require$$1$1;
 		const { access, appendFile, writeFile } = fs_1.promises;
 		exports$1.SUMMARY_ENV_VAR = 'GITHUB_STEP_SUMMARY';
 		exports$1.SUMMARY_DOCS_URL = 'https://docs.github.com/actions/using-workflows/workflow-commands-for-github-actions#adding-a-job-summary';
@@ -25507,7 +25508,7 @@ function requirePathUtils () {
 	};
 	Object.defineProperty(pathUtils, "__esModule", { value: true });
 	pathUtils.toPlatformPath = pathUtils.toWin32Path = pathUtils.toPosixPath = void 0;
-	const path = __importStar(require$$1$5);
+	const path = __importStar(require$$1__default);
 	/**
 	 * toPosixPath converts the given path to the posix form. On Windows, \\ will be
 	 * replaced with /.
@@ -25548,7 +25549,7 @@ function requirePathUtils () {
 
 var platform = {};
 
-var exec$1 = {};
+var exec = {};
 
 var toolrunner = {};
 
@@ -25593,8 +25594,8 @@ function requireIoUtil () {
 		var _a;
 		Object.defineProperty(exports$1, "__esModule", { value: true });
 		exports$1.getCmdPath = exports$1.tryGetExecutablePath = exports$1.isRooted = exports$1.isDirectory = exports$1.exists = exports$1.READONLY = exports$1.UV_FS_O_EXLOCK = exports$1.IS_WINDOWS = exports$1.unlink = exports$1.symlink = exports$1.stat = exports$1.rmdir = exports$1.rm = exports$1.rename = exports$1.readlink = exports$1.readdir = exports$1.open = exports$1.mkdir = exports$1.lstat = exports$1.copyFile = exports$1.chmod = void 0;
-		const fs = __importStar(require$$1);
-		const path = __importStar(require$$1$5);
+		const fs = __importStar(require$$1$1);
+		const path = __importStar(require$$1__default);
 		_a = fs.promises
 		// export const {open} = 'fs'
 		, exports$1.chmod = _a.chmod, exports$1.copyFile = _a.copyFile, exports$1.lstat = _a.lstat, exports$1.mkdir = _a.mkdir, exports$1.open = _a.open, exports$1.readdir = _a.readdir, exports$1.readlink = _a.readlink, exports$1.rename = _a.rename, exports$1.rm = _a.rm, exports$1.rmdir = _a.rmdir, exports$1.stat = _a.stat, exports$1.symlink = _a.symlink, exports$1.unlink = _a.unlink;
@@ -25784,7 +25785,7 @@ function requireIo () {
 	Object.defineProperty(io, "__esModule", { value: true });
 	io.findInPath = io.which = io.mkdirP = io.rmRF = io.mv = io.cp = void 0;
 	const assert_1 = require$$0$3;
-	const path = __importStar(require$$1$5);
+	const path = __importStar(require$$1__default);
 	const ioUtil = __importStar(requireIoUtil());
 	/**
 	 * Copies a file or folder.
@@ -26092,7 +26093,7 @@ function requireToolrunner () {
 	const os = __importStar(require$$0);
 	const events = __importStar(require$$4);
 	const child = __importStar(require$$2$2);
-	const path = __importStar(require$$1$5);
+	const path = __importStar(require$$1__default);
 	const io = __importStar(requireIo());
 	const ioUtil = __importStar(requireIoUtil());
 	const timers_1 = require$$6$1;
@@ -26682,28 +26683,28 @@ function requireToolrunner () {
 var hasRequiredExec;
 
 function requireExec () {
-	if (hasRequiredExec) return exec$1;
+	if (hasRequiredExec) return exec;
 	hasRequiredExec = 1;
-	var __createBinding = (exec$1 && exec$1.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+	var __createBinding = (exec && exec.__createBinding) || (Object.create ? (function(o, m, k, k2) {
 	    if (k2 === undefined) k2 = k;
 	    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
 	}) : (function(o, m, k, k2) {
 	    if (k2 === undefined) k2 = k;
 	    o[k2] = m[k];
 	}));
-	var __setModuleDefault = (exec$1 && exec$1.__setModuleDefault) || (Object.create ? (function(o, v) {
+	var __setModuleDefault = (exec && exec.__setModuleDefault) || (Object.create ? (function(o, v) {
 	    Object.defineProperty(o, "default", { enumerable: true, value: v });
 	}) : function(o, v) {
 	    o["default"] = v;
 	});
-	var __importStar = (exec$1 && exec$1.__importStar) || function (mod) {
+	var __importStar = (exec && exec.__importStar) || function (mod) {
 	    if (mod && mod.__esModule) return mod;
 	    var result = {};
 	    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
 	    __setModuleDefault(result, mod);
 	    return result;
 	};
-	var __awaiter = (exec$1 && exec$1.__awaiter) || function (thisArg, _arguments, P, generator) {
+	var __awaiter = (exec && exec.__awaiter) || function (thisArg, _arguments, P, generator) {
 	    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
 	    return new (P || (P = Promise))(function (resolve, reject) {
 	        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -26712,8 +26713,8 @@ function requireExec () {
 	        step((generator = generator.apply(thisArg, _arguments || [])).next());
 	    });
 	};
-	Object.defineProperty(exec$1, "__esModule", { value: true });
-	exec$1.getExecOutput = exec$1.exec = void 0;
+	Object.defineProperty(exec, "__esModule", { value: true });
+	exec.getExecOutput = exec.exec = void 0;
 	const string_decoder_1 = require$$6;
 	const tr = __importStar(requireToolrunner());
 	/**
@@ -26726,7 +26727,7 @@ function requireExec () {
 	 * @param     options            optional exec options.  See ExecOptions
 	 * @returns   Promise<number>    exit code
 	 */
-	function exec(commandLine, args, options) {
+	function exec$1(commandLine, args, options) {
 	    return __awaiter(this, void 0, void 0, function* () {
 	        const commandArgs = tr.argStringToArray(commandLine);
 	        if (commandArgs.length === 0) {
@@ -26739,7 +26740,7 @@ function requireExec () {
 	        return runner.exec();
 	    });
 	}
-	exec$1.exec = exec;
+	exec.exec = exec$1;
 	/**
 	 * Exec a command and get the output.
 	 * Output will be streamed to the live console.
@@ -26773,7 +26774,7 @@ function requireExec () {
 	            }
 	        };
 	        const listeners = Object.assign(Object.assign({}, options === null || options === void 0 ? void 0 : options.listeners), { stdout: stdOutListener, stderr: stdErrListener });
-	        const exitCode = yield exec(commandLine, args, Object.assign(Object.assign({}, options), { listeners }));
+	        const exitCode = yield exec$1(commandLine, args, Object.assign(Object.assign({}, options), { listeners }));
 	        //flush any remaining characters
 	        stdout += stdoutDecoder.end();
 	        stderr += stderrDecoder.end();
@@ -26784,9 +26785,9 @@ function requireExec () {
 	        };
 	    });
 	}
-	exec$1.getExecOutput = getExecOutput;
+	exec.getExecOutput = getExecOutput;
 	
-	return exec$1;
+	return exec;
 }
 
 var hasRequiredPlatform;
@@ -26936,7 +26937,7 @@ function requireCore () {
 		const file_command_1 = requireFileCommand();
 		const utils_1 = requireUtils$1();
 		const os = __importStar(require$$0);
-		const path = __importStar(require$$1$5);
+		const path = __importStar(require$$1__default);
 		const oidc_utils_1 = requireOidcUtils();
 		/**
 		 * The code to exit an action
@@ -27246,6 +27247,8 @@ function requireCore () {
 }
 
 var coreExports = requireCore();
+
+var execExports = requireExec();
 
 var toolCache = {};
 
@@ -28954,7 +28957,7 @@ function requireManifest () {
 		/* eslint @typescript-eslint/no-require-imports: 0 */
 		const os = require$$0;
 		const cp = require$$2$2;
-		const fs = require$$1;
+		const fs = require$$1$1;
 		function _findMatch(versionSpec, stable, candidates, archFilter) {
 		    return __awaiter(this, void 0, void 0, function* () {
 		        const platFilter = os.platform();
@@ -29184,10 +29187,10 @@ function requireToolCache () {
 	const core = __importStar(requireCore());
 	const io = __importStar(requireIo());
 	const crypto = __importStar(require$$0$1);
-	const fs = __importStar(require$$1);
+	const fs = __importStar(require$$1$1);
 	const mm = __importStar(requireManifest());
 	const os = __importStar(require$$0);
-	const path = __importStar(require$$1$5);
+	const path = __importStar(require$$1__default);
 	const httpm = __importStar(requireLib());
 	const semver = __importStar(requireSemver());
 	const stream = __importStar(require$$0$5);
@@ -29819,18 +29822,98 @@ var toolCacheExports = requireToolCache();
 
 var libExports = requireLib();
 
+// Run Warp's agent.
 async function runAgent() {
-    await installWarp(coreExports.getInput('warp_channel'), coreExports.getInput('warp_version'));
+  const channel = coreExports.getInput('warp_channel');
+  const prompt = coreExports.getInput('prompt');
+  const savedPrompt = coreExports.getInput('saved_prompt');
+
+  if (!prompt && !savedPrompt) {
+    throw new Error('Either `prompt` or `saved_prompt` must be provided')
+  }
+
+  const apiKey = coreExports.getInput('warp_api_key');
+  if (!apiKey) {
+    throw new Error('`warp_api_key` must be provided.')
+  }
+
+  let command;
+  switch (channel) {
+    case 'stable':
+      command = 'warp-cli';
+      break
+    case 'preview':
+      command = 'warp-cli-preview';
+      break
+    default:
+      throw new Error(`Unsupported channel ${channel}`)
+  }
+
+  await installWarp(channel, coreExports.getInput('warp_version'));
+
+  let args = ['agent', 'run'];
+
+  if (prompt) {
+    args.push('--prompt', prompt);
+  }
+
+  if (savedPrompt) {
+    args.push('--saved-prompt', savedPrompt);
+  }
+
+  const cwd = coreExports.getInput('cwd');
+  if (cwd) {
+    args.push('--cwd', cwd);
+  }
+  const profile = coreExports.getInput('profile');
+  if (profile) {
+    args.push('--profile', profile);
+  }
+
+  const outputFormat = coreExports.getInput('output_format');
+  if (outputFormat) {
+    args.push('--output-format', outputFormat);
+  }
+
+  const shareRecipients = coreExports.getMultilineInput('share');
+  if (shareRecipients) {
+    for (const recipient of shareRecipients) {
+      args.push('--share', recipient);
+    }
+  }
+
+  // In debug mode, show Warp logs on stderr.
+  if (coreExports.isDebug()) {
+    args.push('--debug');
+  }
+
+  const { stdout } = await execExports.getExecOutput(command, args, {
+    env: {
+      ...process$1.env,
+      WARP_API_KEY: apiKey
+    }
+  });
+
+  coreExports.setOutput('agent_output', stdout);
 }
 
+// Install the Warp CLI, using the specified channel and version.
 async function installWarp(channel, version) {
+  await coreExports.group('Installing Warp', async () => {
     const warpDeb = await downloadWarpDeb(channel, version);
-    await exec.exec('sudo', ['apt', 'install', warpDeb]);
+    // Install the .deb file, and then use apt-get to install any dependencies.
+    await execExports.exec('sudo', ['dpkg', '-i', warpDeb]);
+    await execExports.exec('sudo', ['apt-get', '-f', 'install']);
+  });
 }
 
+// Download the .deb file for the Warp CLI. If the version is `latest`, this will resolve the
+// latest version on `channel`.
 async function downloadWarpDeb(channel, version) {
   if (process$1.platform !== 'linux') {
-    throw new Error(`Only Linux runners are supported - the current platform is ${process$1.platform}`);
+    throw new Error(
+      `Only Linux runners are supported - the current platform is ${process$1.platform}`
+    )
   }
 
   let debUrl;
@@ -29844,25 +29927,28 @@ async function downloadWarpDeb(channel, version) {
     arch = 'aarch64';
     debArch = 'arm64';
   } else {
-    throw new Error(`Unsupported architecture ${process$1.arch}`);
+    throw new Error(`Unsupported architecture ${process$1.arch}`)
   }
 
   if (version === 'latest') {
-    const redirectUrl = `https://app.warp.dev/download/cli?os=linux&package=deb&arch=${arch}&channel=${channel}`;
-    const client = new libExports.HttpClient('warp-cli-action');
-    const response = await client.get(redirectUrl, {allowRedirects: false});
-    
+    const client = new libExports.HttpClient('warp-cli-action', undefined, { allowRedirects: false });
+    const response = await client.get(
+      `https://app.warp.dev/download/cli?os=linux&package=deb&arch=${arch}&channel=${channel}`
+    );
+
     if (response.message.statusCode === 302 || response.message.statusCode === 301) {
       debUrl = response.message.headers['location'];
       const url = new URL(debUrl);
-      const pathComponents = url.pathname.split('/').filter(c => c);
+      const pathComponents = url.pathname.split('/').filter((c) => c);
       // Extract the version component from the URL.
       if (pathComponents.length >= 2) {
         version = pathComponents[1];
       }
     } else {
-      throw new Error(`Expected redirect from ${redirectUrl}, got status ${response.message.statusCode}`);
+      throw new Error(`Expected redirect, got status ${response}`)
     }
+
+    coreExports.info(`Latest version on ${channel} is ${version}`);
   } else {
     let debVersion;
     if (version.startsWith('v')) {
@@ -29873,15 +29959,17 @@ async function downloadWarpDeb(channel, version) {
     }
     debUrl = `https://releases.warp.dev/${channel}/${version}/warp-cli-${channel}_${debVersion}_${debArch}.deb`;
   }
-    
-  const cachedDeb = toolCacheExports.find('warp-cli', `${channel}-${version}`, process$1.arch);
+
+  const cacheVersion = `${channel}-${version}`;
+  let cachedDeb = toolCacheExports.find('warp-cli', cacheVersion);
   if (!cachedDeb) {
+    coreExports.debug(`Downloading from ${debUrl}...`);
     const downloadedDeb = await toolCacheExports.downloadTool(debUrl);
-    await toolCacheExports.cacheFile(downloadedDeb, 'warp-cli.deb', 'warp-cli', `${channel}-${version}`);
-    return downloadedDeb;
+    cachedDeb = await toolCacheExports.cacheFile(downloadedDeb, 'warp-cli.deb', 'warp-cli', cacheVersion);
   } else {
-    return `${cachedDeb}/warp-cli.deb`;
-}
+    coreExports.debug('Using cached .deb package');
+  }
+  return require$$1.join(cachedDeb, 'warp-cli.deb')
 }
 
 try {
