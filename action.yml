@@ -1,34 +1,35 @@
 name: Warp Agent
 description: Run the Warp agent in a GitHub workflow
+author: Warp Team <dev@warp.dev>
 
 inputs:
   prompt:
     description: Prompt for the Warp Agent
     required: false
   saved_prompt:
-    description: "Warp Drive Saved prompt ID for the Warp agent"
+    description: 'Warp Drive Saved prompt ID for the Warp agent'
     required: false
-    default: ""
+    default: ''
   cwd:
-    description: "Current working directory for the Warp agent"
+    description: 'Current working directory for the Warp agent'
     required: false
-    default: ""
+    default: ''
   profile:
-    description: "Warp Agent profile for the Warp agent"
+    description: 'Warp Agent profile for the Warp agent'
     required: false
-    default: ""
+    default: ''
   output_format:
     description: Format for agent output
     required: true
     default: text
   warp_api_key:
-    description: "Warp API key for the Warp agent"
+    description: 'Warp API key for the Warp agent'
     required: false
-    default: ""
+    default: ''
   share:
     description: Recipients to share the agent's session with in Warp.
     required: false
-    default: ""
+    default: ''
   warp_channel:
     description: Warp release channel to use
     required: true
@@ -40,5 +41,4 @@ inputs:
 
 runs:
   using: node24
-  main: dist/index.mjs
-
+  main: dist/index.js
