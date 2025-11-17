@@ -7,7 +7,7 @@ import * as tc from '@actions/tool-cache'
 import * as http from '@actions/http-client'
 
 // Run Warp's agent.
-async function runAgent() {
+async function runAgent(): Promise<void> {
   const channel = core.getInput('warp_channel')
   const prompt = core.getInput('prompt')
   const savedPrompt = core.getInput('saved_prompt')
@@ -21,7 +21,7 @@ async function runAgent() {
     throw new Error('`warp_api_key` must be provided.')
   }
 
-  let command
+  let command: string
   switch (channel) {
     case 'stable':
       command = 'warp-cli'
@@ -35,7 +35,7 @@ async function runAgent() {
 
   await installWarp(channel, core.getInput('warp_version'))
 
-  let args = ['agent', 'run']
+  const args = ['agent', 'run']
 
   if (prompt) {
     args.push('--prompt', prompt)
@@ -82,7 +82,7 @@ async function runAgent() {
 }
 
 // Install the Warp CLI, using the specified channel and version.
-async function installWarp(channel, version) {
+async function installWarp(channel: string, version: string): Promise<void> {
   await core.group('Installing Warp', async () => {
     const warpDeb = await downloadWarpDeb(channel, version)
     // Install the .deb file, and then use apt-get to install any dependencies.
@@ -93,16 +93,16 @@ async function installWarp(channel, version) {
 
 // Download the .deb file for the Warp CLI. If the version is `latest`, this will resolve the
 // latest version on `channel`.
-async function downloadWarpDeb(channel, version) {
+async function downloadWarpDeb(channel: string, version: string): Promise<string> {
   if (process.platform !== 'linux') {
     throw new Error(
       `Only Linux runners are supported - the current platform is ${process.platform}`
     )
   }
 
-  let debUrl
-  let arch
-  let debArch
+  let debUrl: string
+  let arch: string
+  let debArch: string
 
   if (process.arch === 'x64') {
     arch = 'x86_64'
@@ -121,7 +121,11 @@ async function downloadWarpDeb(channel, version) {
     )
 
     if (response.message.statusCode === 302 || response.message.statusCode === 301) {
-      debUrl = response.message.headers['location']
+      const location = response.message.headers['location']
+      if (!location) {
+        throw new Error('Redirect location header missing')
+      }
+      debUrl = location
       const url = new URL(debUrl)
       const pathComponents = url.pathname.split('/').filter((c) => c)
       // Extract the version component from the URL.
@@ -129,12 +133,12 @@ async function downloadWarpDeb(channel, version) {
         version = pathComponents[1]
       }
     } else {
-      throw new Error(`Expected redirect, got status ${response}`)
+      throw new Error(`Expected redirect, got status ${response.message.statusCode}`)
     }
 
     core.info(`Latest version on ${channel} is ${version}`)
   } else {
-    let debVersion
+    let debVersion: string
     if (version.startsWith('v')) {
       debVersion = version.slice(1)
     } else {
@@ -159,5 +163,9 @@ async function downloadWarpDeb(channel, version) {
 try {
   await runAgent()
 } catch (error) {
-  core.setFailed(error.message)
+  if (error instanceof Error) {
+    core.setFailed(error.message)
+  } else {
+    core.setFailed(String(error))
+  }
 }
