@@ -20,7 +20,8 @@ name: Fix Failing Checks
 
 on:
   workflow_run:
-    workflows: ['Continuous Integration', 'test_e2e.yml']
+    # Add specific workflows here
+    # workflows: []
     types:
       - completed
 
@@ -28,7 +29,9 @@ jobs:
   fix_failure:
     name: Fix Failure
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+    if: |
+      ${{ github.event.workflow_run.conclusion == 'failure' }} && 
+      !startsWith(github.event.workflow_run.head_branch, 'warp-agent-fix/')
     permissions:
       contents: write
       pull-requests: write
@@ -130,7 +133,7 @@ jobs:
 
           echo "Changes detected. Preparing PR."
 
-          FIX_BRANCH="fix/run-$RUN_ID"
+          FIX_BRANCH="warp-agent-fix/run-$RUN_ID"
           git config user.name "Warp Agent"
           git config user.email "agent@warp.dev"
 

@@ -32,7 +32,8 @@ jobs:
       (
         github.event_name == 'pull_request_review_comment' ||
         (github.event_name == 'issue_comment' && github.event.issue.pull_request)
-      )
+      ) &&
+      github.actor != 'github-actions[bot]'
     permissions:
       contents: write
       pull-requests: write
