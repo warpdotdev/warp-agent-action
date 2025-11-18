@@ -131,8 +131,8 @@ jobs:
           echo "Changes detected. Preparing PR."
 
           FIX_BRANCH="fix/run-$RUN_ID"
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "Warp Agent"
+          git config user.email "agent@warp.dev"
 
           git checkout -b "$FIX_BRANCH"
           git add .

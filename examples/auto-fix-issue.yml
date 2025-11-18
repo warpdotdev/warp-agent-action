@@ -81,8 +81,8 @@ jobs:
 
           BRANCH_NAME="fix/issue-$ISSUE_NUMBER"
 
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "Warp Agent"
+          git config user.email "agent@warp.dev"
 
           git checkout -b "$BRANCH_NAME"
           git add .
