@@ -29861,6 +29861,9 @@ async function runAgent() {
     if (profile) {
         args.push('--profile', profile);
     }
+    else {
+        args.push('--sandboxed');
+    }
     const outputFormat = coreExports.getInput('output_format');
     if (outputFormat) {
         args.push('--output-format', outputFormat);
