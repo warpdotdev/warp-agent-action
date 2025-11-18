@@ -20,7 +20,7 @@ name: Fix Failing Checks
 
 on:
   workflow_run:
-    workflows: ["Continuous Integration", "test_e2e.yml"]
+    workflows: ['Continuous Integration', 'test_e2e.yml']
     types:
       - completed
 
@@ -34,7 +34,7 @@ jobs:
       pull-requests: write
       actions: read
       checks: read
-    
+
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
@@ -52,12 +52,12 @@ jobs:
           # Fetch logs for failed steps. 
           # Note: --log-failed returns the log of the failed steps.
           LOGS=$(gh run view $RUN_ID --log-failed)
-          
+
           if [ -z "$LOGS" ]; then
             echo "No logs found or failed to retrieve logs."
             LOGS="No logs available."
           fi
-          
+
           # Write to a file to handle potential special characters and size
           echo "$LOGS" > failure_logs.txt
 
@@ -73,24 +73,24 @@ jobs:
             } catch (e) {
               logs = 'Could not read log file.';
             }
-            
+
             const workflowName = '${{ github.event.workflow_run.name }}';
             const repoName = context.repo.repo;
             const branchName = '${{ github.event.workflow_run.head_branch }}';
-            
+
             const prompt = `You are an expert software engineer and the Warp Agent.
             You are tasked with fixing a CI failure in the repository '${repoName}' on branch '${branchName}'.
-            
+
             **Context**:
             - **Workflow**: ${workflowName}
             - **Status**: FAILED
-            
+
             **Failure Logs**:
             \`\`\`
             ${logs.slice(0, 15000)}
             \`\`\`
             (Logs truncated to first 15000 characters if longer)
-            
+
             **Instructions**:
             1.  **Analyze**: Read the logs carefully to identify the specific error (e.g., test failure, lint error, build error).
             2.  **Locate**: Find the files and lines of code responsible for the error.
@@ -99,16 +99,16 @@ jobs:
                 -   If it's a lint error, fix the style.
             4.  **Verify**: Ensure your changes are minimal and targeted.
             5.  **Output**: Do not output the diff. Just explain what you fixed in a concise summary.
-            
+
             **Constraints**:
             -   Do NOT modify the workflow files (.github/workflows/) unless the error is specifically about the workflow configuration.
             -   Focus on the source code.
             `;
-            
+
             core.setOutput('prompt', prompt);
 
       - name: Run Warp Agent
-        uses: warpdotdev/warp-agent-action@main
+        uses: warpdotdev/warp-agent-action@v1
         id: agent
         with:
           prompt: ${{ steps.prompt.outputs.prompt }}
@@ -127,28 +127,28 @@ jobs:
             echo "No changes made by Warp Agent."
             exit 0
           fi
-          
+
           echo "Changes detected. Preparing PR."
 
           FIX_BRANCH="fix/run-$RUN_ID"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          
+
           git checkout -b "$FIX_BRANCH"
           git add .
           git commit -m "Fix failing checks for run $RUN_ID"
           git push origin "$FIX_BRANCH" --force
-          
+
           # Find associated PR
           PR_JSON=$(gh pr list --head "$ORIGINAL_BRANCH" --json number,title,url --limit 1)
           PR_NUMBER=$(echo "$PR_JSON" | jq -r '.[0].number')
-          
+
           BODY="This PR attempts to fix the CI failures in run [$RUN_ID](${{ github.event.workflow_run.html_url }}).
-          
+
           **Agent Output:**
           $AGENT_OUTPUT
           "
-          
+
           if [ "$PR_NUMBER" == "null" ] || [ -z "$PR_NUMBER" ]; then
              echo "No associated PR found. Creating PR against main."
              NEW_PR_URL=$(gh pr create --title "Fix CI Failure for run $RUN_ID" --body "$BODY" --base main --head "$FIX_BRANCH")

@@ -46,7 +46,7 @@ jobs:
         run: |
           COMMENT_ID="${{ github.event.comment.id }}"
           REACTION="eyes"
-          
+
           if [ "${{ github.event_name }}" == "pull_request_review_comment" ]; then
             gh api \
               --method POST \
@@ -71,7 +71,7 @@ jobs:
           if [ -z "$PR_NUMBER" ]; then
             PR_NUMBER="${{ github.event.pull_request.number }}"
           fi
-          
+
           echo "Checking out PR #$PR_NUMBER"
           gh pr checkout "$PR_NUMBER"
 
@@ -102,7 +102,7 @@ jobs:
               repo,
               pull_number: prNumber,
             });
-            
+
             const fileList = files.map(f => f.filename).join(', ');
 
             const commentBody = context.payload.comment.body;
@@ -151,7 +151,7 @@ jobs:
             core.setOutput('prompt', prompt);
 
       - name: Run Warp Agent
-        uses: warpdotdev/warp-agent-action@main
+        uses: warpdotdev/warp-agent-action@v1
         id: agent
         with:
           prompt: ${{ steps.prompt.outputs.prompt }}
@@ -164,7 +164,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          
+
           if [[ -n $(git status --porcelain) ]]; then
             git add .
             git commit -m "Warp Agent: Address comment"
@@ -179,7 +179,7 @@ jobs:
           AGENT_OUTPUT: ${{ steps.agent.outputs.agent_output }}
         run: |
           COMMENT_ID="${{ github.event.comment.id }}"
-          
+
           # If we have output, reply with it.
           if [ -n "$AGENT_OUTPUT" ]; then
              BODY="Warp Agent processed your request.\n\nOutput:\n$AGENT_OUTPUT"

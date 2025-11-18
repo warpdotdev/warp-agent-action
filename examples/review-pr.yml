@@ -69,7 +69,7 @@ jobs:
             **PR Context**:
             - **Title**: ${pr.title}
             - **Description**: ${pr.body || 'No description provided.'}
-            
+
             **Code Changes (Diff)**:
             \`\`\`diff
             ${diffContent}
@@ -95,14 +95,14 @@ jobs:
                 -   Example body: "You can simplify this logic:\n\`\`\`suggestion\nconst x = y + 1;\n\`\`\`"
             4.  **Summary**:
                 -   After placing inline comments, if you have general feedback that doesn't fit a specific line, post a general comment: \`gh pr comment ${prNumber} --body "Your summary"\`.
-            
+
             **Goal**: Provide actionable, high-quality feedback to help the author improve the code. Be constructive and specific.
             `;
 
             core.setOutput('prompt', prompt);
 
       - name: Run Warp Agent Review
-        uses: warpdotdev/warp-agent-action@main
+        uses: warpdotdev/warp-agent-action@v1
         env:
           GH_TOKEN: ${{ github.token }}
         with:

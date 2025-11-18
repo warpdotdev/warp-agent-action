@@ -45,11 +45,11 @@ jobs:
             const issue = context.payload.issue;
             const prompt = `You are an expert software engineer and the Warp Agent.
             You have been assigned to fix GitHub Issue #${issue.number}.
-            
+
             **Issue Details**:
             - **Title**: ${issue.title}
             - **Description**: ${issue.body || 'No description provided.'}
-            
+
             **Instructions**:
             1.  **Analyze**: Understand the issue description and locate the relevant code.
             2.  **Fix**: Implement the changes necessary to resolve the issue.
@@ -59,7 +59,7 @@ jobs:
             core.setOutput('prompt', prompt);
 
       - name: Run Warp Agent
-        uses: warpdotdev/warp-agent-action@main
+        uses: warpdotdev/warp-agent-action@v1
         id: agent
         with:
           prompt: ${{ steps.prompt.outputs.prompt }}
@@ -78,31 +78,31 @@ jobs:
             gh issue comment "$ISSUE_NUMBER" --body "I analyzed the issue but couldn't determine a code change to make. \n\n**Agent Output:**\n$AGENT_OUTPUT"
             exit 0
           fi
-          
+
           BRANCH_NAME="fix/issue-$ISSUE_NUMBER"
-          
+
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          
+
           git checkout -b "$BRANCH_NAME"
           git add .
           git commit -m "Fix for Issue #$ISSUE_NUMBER"
           git push origin "$BRANCH_NAME" --force
-          
+
           # Create PR
           # Escape title to handle special chars
           TITLE="Fix Issue #$ISSUE_NUMBER: ${{ github.event.issue.title }}"
           BODY="This PR attempts to fix Issue #$ISSUE_NUMBER.
-          
+
           **Agent Summary**:
           $AGENT_OUTPUT
-          
+
           Closes #$ISSUE_NUMBER"
-          
+
           # Create PR and capture URL
           PR_URL=$(gh pr create --title "$TITLE" --body "$BODY" --base main --head "$BRANCH_NAME")
-          
+
           echo "Created PR: $PR_URL"
-          
+
           # Comment on Issue
           gh issue comment "$ISSUE_NUMBER" --body "I have created a fix for this issue: $PR_URL"
