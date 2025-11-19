@@ -147,6 +147,7 @@ jobs:
             5. Do not output the code diff in your final message; only explain what you changed or answer the question.
             6. Format your response in Markdown.
             7. Your output will be posted as a reply to the user.
+            8. Do not attempt to stage or commit changes. This happens automatically after you complete your response.
             `;
 
             core.setOutput('prompt', prompt);

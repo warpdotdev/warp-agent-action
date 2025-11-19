@@ -39,7 +39,8 @@ jobs:
         run: |
           gh pr checkout ${{ github.event.pull_request.number }}
           git fetch origin ${{ github.event.pull_request.base.ref }}
-          git diff origin/${{ github.event.pull_request.base.ref }} > pr_diff.txt
+          # Diff only the changes introduced in this PR, relative to the PR's base commit
+          git diff ${{ github.event.pull_request.base.sha }}..HEAD > pr_diff.txt
 
       - name: Construct Review Prompt
         id: prompt
@@ -96,6 +97,7 @@ jobs:
                           "path": "path/to/file",
                           "line": 42,
                           "side": "RIGHT",
+                          "start_line": 40,
                           "body": "Your comment here. You can use **markdown** and code blocks."
                         }
                       ]
@@ -103,6 +105,7 @@ jobs:
                     \`\`\`
                 -   **Crucial**:
                     -   \`line\`: Ensure the line number corresponds to the line in the *new* version of the file (RIGHT side). If commenting on a deleted line, use the line number in the old version and set \`side\` to "LEFT".
+                    -   \`start_line\` (optional): For comments or suggestions that span multiple lines, set this to the first line of the range; \`line\` should be the last line of the range on the same side.
                     -   \`path\`: The relative path to the file from the repository root.
                     -   \`body\`: The content of your comment. Provide actionable suggestions.
 
@@ -110,9 +113,10 @@ jobs:
                 -   If you can propose a specific code fix, use a suggestion block in your comment body.
                 -   Format:
                     \`\`\`suggestion
-                    <your proposed code change>
+                    <only the code you are proposing as the replacement for the selected lines>
                     \`\`\`
-                -   Example body: "You can simplify this logic:\\n\`\`\`suggestion\\nconst x = y + 1;\\n\`\`\`"
+                -   The suggestion block must contain **only the changed code**, with no extra, unchanged context lines before or after the change.
+                -   For suggestions where the original code spans multiple lines, you must also include a \`start_line\` field in the JSON comment representing the first line of the range covered by the suggestion; \`line\` should be the last line of the range.
 
             4.  **Summary (Mandatory)**:
                 -   You MUST provide a \`summary\` in the JSON.
@@ -125,7 +129,7 @@ jobs:
 
             5.  **Final Step**:
                 -   Create the \`review.json\` file with your drafted content.
-                -   Ensure the JSON is valid.
+                -   Important: Ensure the JSON is valid by using jq
 
             **Goal**: Provide actionable, high-quality feedback to help the author improve the code. Be constructive and specific.
             `;
@@ -157,7 +161,37 @@ jobs:
               }
 
               const reviewContent = fs.readFileSync('review.json', 'utf8');
-              const review = JSON.parse(reviewContent);
+
+              let review;
+              try {
+                review = JSON.parse(reviewContent);
+              } catch (parseError) {
+                core.warning(
+                  `Failed to parse review.json (likely due to unescaped control characters). Attempting to sanitize. Original error: ${parseError.message}`
+                );
+
+                // Replace unescaped control characters (including raw newlines and tabs)
+                // with spaces so that JSON.parse can succeed. This preserves most content
+                // while avoiding "Bad control character" syntax errors.
+                const sanitized = reviewContent.replace(/[\\u0000-\\u001F]+/g, ' ');
+
+                try {
+                  review = JSON.parse(sanitized);
+                } catch (sanitizedError) {
+                  core.setFailed(
+                    `Failed to parse review.json even after sanitizing control characters: ${sanitizedError.message}`
+                  );
+                  return;
+                }
+              }
+
+              const decodeNewlines = (text) => {
+                if (typeof text !== 'string') return text;
+                // Convert escaped "\n" sequences into real newlines so comments render correctly.
+                return text
+                  .replace(/\r\n/g, '\n')
+                  .replace(/\\n/g, '\n');
+              };
 
               // Ensure we have an array of comments
               const rawComments = Array.isArray(review.comments) ? review.comments : [];
@@ -198,15 +232,39 @@ jobs:
                   side = 'RIGHT';
                 }
 
-                comments.push({
+                // Optional multi-line range support via start_line.
+                let startLine;
+                if (c.start_line !== undefined && c.start_line !== null) {
+                  startLine = Number(c.start_line);
+                  if (!Number.isInteger(startLine) || startLine <= 0 || startLine === line) {
+                    console.log('Ignoring invalid start_line on comment:', c);
+                    startLine = undefined;
+                  } else if (startLine > line) {
+                    console.log('Ignoring start_line greater than line on comment:', c);
+                    startLine = undefined;
+                  }
+                }
+
+                const commentPayload = {
                   path: normalizedPath,
                   line,
                   side,
-                  body: c.body,
-                });
+                  body: decodeNewlines(c.body),
+                };
+
+                if (startLine && startLine < line) {
+                  commentPayload.start_line = startLine;
+                  // Use the same side for the start of the range by default.
+                  commentPayload.start_side = side;
+                }
+
+                comments.push(commentPayload);
               }
 
-              const hasSummary = typeof review.summary === 'string' && review.summary.trim().length > 0;
+              const summary =
+                typeof review.summary === 'string' ? decodeNewlines(review.summary).trim() : '';
+
+              const hasSummary = summary.length > 0;
 
               if (!hasSummary && comments.length === 0) {
                 console.log('No valid summary or inline comments found. Skipping review posting.');
@@ -221,7 +279,7 @@ jobs:
               };
 
               if (hasSummary) {
-                payload.body = review.summary.trim();
+                payload.body = summary;
               } else {
                 payload.body = 'Automated review by Warp Agent';
               }
