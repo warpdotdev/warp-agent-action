@@ -43,6 +43,21 @@ jobs:
         with:
           script: |
             const issue = context.payload.issue;
+
+            // Fetch all previous comments on the issue to give the agent full context
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              per_page: 100,
+            });
+
+            const commentsText = comments.length
+              ? comments
+                  .map(c => `- ${c.user?.login || 'unknown'} (${c.created_at}): ${c.body}`)
+                  .join('\n')
+              : 'No comments yet.';
+
             const prompt = `You are an expert software engineer and the Warp Agent.
             You have been assigned to fix GitHub Issue #${issue.number}.
 
@@ -50,8 +65,11 @@ jobs:
             - **Title**: ${issue.title}
             - **Description**: ${issue.body || 'No description provided.'}
 
+            **Previous Issue Comments**:
+            ${commentsText}
+
             **Instructions**:
-            1.  **Analyze**: Understand the issue description and locate the relevant code.
+            1.  **Analyze**: Understand the issue description, previous comments, and locate the relevant code.
             2.  **Fix**: Implement the changes necessary to resolve the issue.
             3.  **Verify**: Ensure the code is correct and follows existing patterns.
             4.  **Output**: Do not output the diff. Provide a brief summary of what you changed.

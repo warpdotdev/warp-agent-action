@@ -61,11 +61,11 @@ jobs:
             const diffContent = fs.readFileSync('pr_diff.txt', 'utf8');
 
             const prompt = `You are an expert software engineer and code reviewer.
-            Your task is to provide a comprehensive code review for Pull Request #${prNumber}.
+            Your task is to provide a comprehensive code review focused on the changes introduced in Pull Request #${prNumber}.
 
             **System Context**:
             - The current working directory is already checked out to the PR branch.
-            - You have access to the full source code in the current directory.
+            - You have access to the full source code in the current directory, but you should primarily analyze and comment on the diff shown below (i.e., changes made in this PR).
 
             **PR Context**:
             - **Title**: ${pr.title}
@@ -83,19 +83,49 @@ jobs:
                 -   **Performance**: Inefficient algorithms, unnecessary resource usage.
                 -   **Readability & Style**: Poor naming, lack of comments, overly complex code.
                 -   **Best Practices**: Adherence to language and framework idioms.
+                -   **Focus**: Restrict your feedback to code that is modified in this PR and its immediate context. Avoid suggesting changes to untouched files or lines unless they are directly required to understand or safely integrate the new changes.
             2.  **Comment**:
-                -   Use the GitHub CLI (\`gh\`) to leave inline comments on specific lines where you find issues.
-                -   Command format: \`gh pr comment ${prNumber} --path "path/to/file" --line <line_number> --body "Your comment"\`
-                -   **Crucial**: Ensure the line number corresponds to the line in the *new* version of the file (the right side of the diff).
+                -   Do NOT use the GitHub CLI (\`gh\`) to post comments directly.
+                -   Instead, draft your review into a single JSON file named \`review.json\` in the current directory.
+                -   **JSON Schema**:
+                    \`\`\`json
+                    {
+                      "summary": "General feedback summary and overview of the changes. This is a good place for high-level feedback that applies to the entire PR.",
+                      "comments": [
+                        {
+                          "path": "path/to/file",
+                          "line": 42,
+                          "side": "RIGHT",
+                          "body": "Your comment here. You can use **markdown** and code blocks."
+                        }
+                      ]
+                    }
+                    \`\`\`
+                -   **Crucial**:
+                    -   \`line\`: Ensure the line number corresponds to the line in the *new* version of the file (RIGHT side). If commenting on a deleted line, use the line number in the old version and set \`side\` to "LEFT".
+                    -   \`path\`: The relative path to the file from the repository root.
+                    -   \`body\`: The content of your comment. Provide actionable suggestions.
+
             3.  **Suggest Changes**:
                 -   If you can propose a specific code fix, use a suggestion block in your comment body.
                 -   Format:
                     \`\`\`suggestion
                     <your proposed code change>
                     \`\`\`
-                -   Example body: "You can simplify this logic:\n\`\`\`suggestion\nconst x = y + 1;\n\`\`\`"
-            4.  **Summary**:
-                -   After placing inline comments, if you have general feedback that doesn't fit a specific line, post a general comment: \`gh pr comment ${prNumber} --body "Your summary"\`.
+                -   Example body: "You can simplify this logic:\\n\`\`\`suggestion\\nconst x = y + 1;\\n\`\`\`"
+
+            4.  **Summary (Mandatory)**:
+                -   You MUST provide a \`summary\` in the JSON.
+                -   This will be posted as the main review body.
+                -   Content should include:
+                    -   A brief overview of the changes.
+                    -   Assessment of the code quality.
+                    -   Any high-level architectural or security concerns.
+                    -   Final recommendation (e.g., "Looks good", "Needs changes").
+
+            5.  **Final Step**:
+                -   Create the \`review.json\` file with your drafted content.
+                -   Ensure the JSON is valid.
 
             **Goal**: Provide actionable, high-quality feedback to help the author improve the code. Be constructive and specific.
             `;
@@ -110,3 +140,101 @@ jobs:
           prompt: ${{ steps.prompt.outputs.prompt }}
           warp_api_key: ${{ secrets.WARP_API_KEY }}
           profile: ${{ vars.WARP_AGENT_PROFILE || '' }}
+
+      - name: Post Review
+        uses: actions/github-script@v7
+        if: always() # Run even if the agent fails, to try and post what was drafted
+        with:
+          script: |
+            const fs = require('fs');
+            const { owner, repo } = context.repo;
+            const prNumber = context.payload.pull_request.number;
+
+            try {
+              if (!fs.existsSync('review.json')) {
+                console.log('No review.json found. Skipping review posting.');
+                return;
+              }
+
+              const reviewContent = fs.readFileSync('review.json', 'utf8');
+              const review = JSON.parse(reviewContent);
+
+              // Ensure we have an array of comments
+              const rawComments = Array.isArray(review.comments) ? review.comments : [];
+
+              // Fetch valid file paths from the PR to avoid "path is invalid" errors
+              const prFiles = await github.paginate(
+                github.rest.pulls.listFiles,
+                { owner, repo, pull_number: prNumber }
+              );
+              const validPaths = new Set(prFiles.map(f => f.filename));
+
+              const comments = [];
+
+              for (const c of rawComments) {
+                if (!c || typeof c !== 'object') continue;
+                if (typeof c.body !== 'string' || !c.body.trim()) continue;
+                if (typeof c.path !== 'string' || !c.path.trim()) continue;
+
+                // Normalize path: strip leading a/ or b/ and ./
+                const normalizedPath = c.path.trim()
+                  .replace(/^([ab]\/)*/, '')
+                  .replace(/^\.\//, '');
+
+                if (!validPaths.has(normalizedPath)) {
+                  console.log(`Skipping comment with invalid path: ${c.path} -> ${normalizedPath}`);
+                  continue;
+                }
+
+                const line = Number(c.line);
+                if (!Number.isInteger(line) || line <= 0) {
+                  console.log('Skipping comment with invalid line:', c);
+                  continue;
+                }
+
+                let side = (c.side || 'RIGHT').toString().toUpperCase();
+                if (side !== 'LEFT' && side !== 'RIGHT') {
+                  console.log(`Invalid side '${c.side}', defaulting to RIGHT`);
+                  side = 'RIGHT';
+                }
+
+                comments.push({
+                  path: normalizedPath,
+                  line,
+                  side,
+                  body: c.body,
+                });
+              }
+
+              const hasSummary = typeof review.summary === 'string' && review.summary.trim().length > 0;
+
+              if (!hasSummary && comments.length === 0) {
+                console.log('No valid summary or inline comments found. Skipping review posting.');
+                return;
+              }
+
+              const payload = {
+                owner,
+                repo,
+                pull_number: prNumber,
+                event: 'COMMENT',
+              };
+
+              if (hasSummary) {
+                payload.body = review.summary.trim();
+              } else {
+                payload.body = 'Automated review by Warp Agent';
+              }
+
+              if (comments.length > 0) {
+                payload.comments = comments;
+              }
+
+              await github.rest.pulls.createReview(payload);
+
+              console.log('Review posted successfully.');
+
+            } catch (error) {
+              console.error('Failed to post review:', error);
+              core.setFailed(`Failed to post review: ${error.message}`);
+            }

@@ -2,12 +2,11 @@
 # Workflow: Respond to Comment
 # ======================================================================================
 # Usage:
-#   - Comment on a PR or Issue with "@warp-agent" (or your configured trigger phrase).
+#   - Comment on a PR or Issue with "@warp-agent".
 #   - You can ask questions or request code changes (e.g., "@warp-agent fix this typo").
 #
 # Setup:
 #   - Ensure WARP_API_KEY is set in Repository Secrets.
-#   - (Optional) Set WARP_TRIGGER_PHRASE variable if you want a custom trigger.
 #
 # Expected Output:
 #   - The Agent replies to your comment with an answer or confirmation.
@@ -28,7 +27,7 @@ jobs:
   respond:
     runs-on: ubuntu-latest
     if: |
-      contains(github.event.comment.body, vars.WARP_TRIGGER_PHRASE || '@warp-agent') &&
+      contains(github.event.comment.body,'@warp-agent') &&
       (
         github.event_name == 'pull_request_review_comment' ||
         (github.event_name == 'issue_comment' && github.event.issue.pull_request)
