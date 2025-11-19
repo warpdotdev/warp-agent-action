@@ -160,6 +160,7 @@ jobs:
           prompt: ${{ steps.prompt.outputs.prompt }}
           warp_api_key: ${{ secrets.WARP_API_KEY }}
           profile: ${{ vars.WARP_AGENT_PROFILE || '' }}
+          output_format: json
 
       - name: Commit and Push Changes
         env:
