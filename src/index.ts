@@ -52,6 +52,8 @@ async function runAgent(): Promise<void> {
   const profile = core.getInput('profile')
   if (profile) {
     args.push('--profile', profile)
+  } else {
+    args.push('--sandboxed')
   }
 
   const outputFormat = core.getInput('output_format')
