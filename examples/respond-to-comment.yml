@@ -183,6 +183,14 @@ jobs:
         run: |
           COMMENT_ID="${{ github.event.comment.id }}"
 
+          # Parse the agent_output JSON to extract the last text field
+          LAST_TEXT=$(echo "$AGENT_OUTPUT" | grep -o '{"type":"[^"]*","text":"[^"]*"}' | tail -1 | sed -n 's/.*"text":"\([^"]*\)".*/\1/p')
+          
+          # If we extracted text, use it; otherwise fall back to the full output
+          if [ -n "$LAST_TEXT" ]; then
+            AGENT_OUTPUT="$LAST_TEXT"
+          fi
+
           # If we have output, reply with it.
           if [ -n "$AGENT_OUTPUT" ]; then
              BODY="Warp Agent processed your request.\n\nOutput:\n$AGENT_OUTPUT"
