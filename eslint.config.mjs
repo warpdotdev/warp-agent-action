@@ -1,17 +1,18 @@
 // See: https://eslint.org/docs/latest/use/configure/configuration-files
 
 import js from '@eslint/js'
-import { defineConfig, globalIgnores } from 'eslint/config'
-import eslintConfigPrettier from 'eslint-config-prettier/flat'
+import tseslint from 'typescript-eslint'
+import eslintConfigPrettier from 'eslint-config-prettier'
 import globals from 'globals'
 
-export default defineConfig([
-  globalIgnores(['dist/']),
+export default tseslint.config(
   {
-    extends: ['js/recommended', eslintConfigPrettier],
-    plugins: {
-      js
-    },
+    ignores: ['dist/']
+  },
+  js.configs.recommended,
+  ...tseslint.configs.recommended,
+  eslintConfigPrettier,
+  {
     languageOptions: {
       globals: {
         ...globals.node,
@@ -23,13 +24,11 @@ export default defineConfig([
     },
     rules: {
       camelcase: 'off',
-      'eslint-comments/no-use': 'off',
-      'eslint-comments/no-unused-disable': 'off',
-      'i18n-text/no-en': 'off',
-      'import/no-namespace': 'off',
       'no-console': 'off',
       'no-shadow': 'off',
-      'no-unused-vars': 'off'
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': 'off',
+      '@typescript-eslint/no-explicit-any': 'off'
     }
   }
-])
+)
