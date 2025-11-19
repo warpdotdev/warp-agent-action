@@ -208,7 +208,7 @@ jobs:
               return;
             }
 
-            const body = `Warp Agent processed your request.\n\nOutput:\n${content}`;
+            const body = `@${context.payload.comment.user.login}: ${content}`;
             const { owner, repo } = context.repo;
 
             if (context.eventName === 'pull_request_review_comment') {

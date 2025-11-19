@@ -169,12 +169,7 @@ jobs:
                 core.warning(
                   `Failed to parse review.json (likely due to unescaped control characters). Attempting to sanitize. Original error: ${parseError.message}`
                 );
-
-                // Replace unescaped control characters (including raw newlines and tabs)
-                // with spaces so that JSON.parse can succeed. This preserves most content
-                // while avoiding "Bad control character" syntax errors.
                 const sanitized = reviewContent.replace(/[\\u0000-\\u001F]+/g, ' ');
-
                 try {
                   review = JSON.parse(sanitized);
                 } catch (sanitizedError) {
