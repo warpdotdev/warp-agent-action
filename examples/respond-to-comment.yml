@@ -177,32 +177,51 @@ jobs:
           fi
 
       - name: Reply to Comment
+        uses: actions/github-script@v7
         env:
-          GH_TOKEN: ${{ github.token }}
           AGENT_OUTPUT: ${{ steps.agent.outputs.agent_output }}
-        run: |
-          COMMENT_ID="${{ github.event.comment.id }}"
+        with:
+          github-token: ${{ github.token }}
+          script: |
+            const raw = process.env.AGENT_OUTPUT || '';
 
-          # Parse the agent_output JSON to extract the last text field
-          LAST_TEXT=$(echo "$AGENT_OUTPUT" | grep -o '{"type":"[^"]*","text":"[^"]*"}' | tail -1 | sed -n 's/.*"text":"\([^"]*\)".*/\1/p')
-          
-          # If we extracted text, use it; otherwise fall back to the full output
-          if [ -n "$LAST_TEXT" ]; then
-            AGENT_OUTPUT="$LAST_TEXT"
-          fi
+            // Walk JSONL lines and capture the last agent text message, if any.
+            let lastText = '';
+            for (const line of raw.split('\n')) {
+              const trimmed = line.trim();
+              if (!trimmed) continue;
+              try {
+                const obj = JSON.parse(trimmed);
+                if (obj.type === 'agent' && typeof obj.text === 'string') {
+                  lastText = obj.text;
+                }
+              } catch (e) {
+                // Ignore non-JSON lines
+              }
+            }
 
-          # If we have output, reply with it.
-          if [ -n "$AGENT_OUTPUT" ]; then
-             BODY="Warp Agent processed your request.\n\nOutput:\n$AGENT_OUTPUT"
-             
-             if [ "${{ github.event_name }}" == "pull_request_review_comment" ]; then
-               gh api \
-                 --method POST \
-                 -H "Accept: application/vnd.github+json" \
-                 -H "X-GitHub-Api-Version: 2022-11-28" \
-                 /repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/comments/$COMMENT_ID/replies \
-                 -f body="$BODY"
-             else
-               gh issue comment ${{ github.event.issue.number }} --body "$BODY"
-             fi
-          fi
+            const content = (lastText || raw || '').trim();
+            if (!content) {
+              core.info('No agent output to reply with.');
+              return;
+            }
+
+            const body = `Warp Agent processed your request.\n\nOutput:\n${content}`;
+            const { owner, repo } = context.repo;
+
+            if (context.eventName === 'pull_request_review_comment') {
+              await github.rest.pulls.createReplyForReviewComment({
+                owner,
+                repo,
+                pull_number: context.payload.pull_request.number,
+                comment_id: context.payload.comment.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number: context.payload.issue.number,
+                body,
+              });
+            }

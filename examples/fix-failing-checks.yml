@@ -88,14 +88,18 @@ jobs:
             - **Workflow**: ${workflowName}
             - **Status**: FAILED
 
-            **Failure Logs**:
+            **Log Files Available**:
+            - The full failure logs are stored in \`failure_logs.txt\` in the workspace.
+            - Use tools like \`grep\`, \`rg\`, or your editor to search within this file for the root-cause error messages.
+
+            **Failure Logs (truncated preview)**:
             \`\`\`
-            ${logs.slice(0, 15000)}
+            ${logs.slice(0, 4000)}
             \`\`\`
-            (Logs truncated to first 15000 characters if longer)
+            (Preview truncated to the first 4000 characters if longer)
 
             **Instructions**:
-            1.  **Analyze**: Read the logs carefully to identify the specific error (e.g., test failure, lint error, build error).
+            1.  **Analyze**: Start by reading and searching \`failure_logs.txt\` to identify the specific error (e.g., test failure, lint error, build error).
             2.  **Locate**: Find the files and lines of code responsible for the error.
             3.  **Fix**: Modify the code to resolve the issue.
                 -   If it's a test failure, fix the code logic or update the test if the test is incorrect.
@@ -127,6 +131,9 @@ jobs:
           RUN_ID: ${{ github.event.workflow_run.id }}
           AGENT_OUTPUT: ${{ steps.agent.outputs.agent_output }}
         run: |
+          # Remove temporary files that should not be committed
+          rm -f failure_logs.txt
+
           # Check for changes
           if [[ -z $(git status --porcelain) ]]; then
             echo "No changes made by Warp Agent."
