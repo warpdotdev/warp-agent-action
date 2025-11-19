@@ -38,7 +38,7 @@ Then, add a step to your workflow that runs Warp:
   [Session Sharing](https://docs.warp.dev/knowledge-and-collaboration/session-sharing) documentation
   for more info.
 
-See the [action definition](./action.yaml) for all options.
+See the [action definition](./action.yml) for all options.
 
 ## Example Workflows
 
