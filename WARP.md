@@ -8,19 +8,29 @@ This repository contains a GitHub Action that runs the Warp Agent.
 
 - **Type**: Node.js action (targeting `node24` runtime).
 - **Entry Point**: `src/index.js`.
-- **Distribution**: The code is bundled using Rollup into `dist/index.mjs`.
+- **Distribution**: The code is bundled using Rollup into `dist/index.js`.
 - **Logic**:
-  1.  Parses inputs from `action.yaml`.
-  2.  Installs the `warp-cli` package (supports Linux/Ubuntu via `.deb`).
-  3.  Executes `warp-cli agent run` with the provided prompt/parameters.
-  4.  Sets the `agent_output` output.
+-  1.  Parses inputs from `action.yml`.
+-  2.  Installs the `warp-cli` package (supports Linux/Ubuntu via `.deb`).
+-  3.  Executes `warp-cli agent run` with the provided prompt/parameters.
+-  4.  Sets the `agent_output` output.
 
 ## Development
 
 - **Install Dependencies**: `npm install`
-- **Build**: `npm run bundle`
+- **Build Action Bundle**: `npm run build`
+  - This runs the `bundle` script, which formats the code and runs Rollup to produce `dist/index.js`.
   - **Important**: You must run the bundle command and commit the changes in `dist/` for them to
     take effect in the action.
+- **Lint and Format**:
+  - `npm run lint` to run ESLint over the repo.
+  - `npm run format:check` / `npm run format:write` to check or apply Prettier formatting.
+- **Generate Scenario Workflows**: `npm run build:workflows`
+  - Reads the full example workflows in `examples/` and generates:
+    - Scenario-specific reusable workflows in `.github/workflows/` (for `workflow_call` consumption).
+    - Lightweight consumer templates in `consumer-workflows/` that call those reusable workflows.
+  - Do **not** edit files under `.github/workflows/` or `consumer-workflows/` directly; edit the
+    corresponding file in `examples/` and re-run `npm run build:workflows` instead.
 
 ## Testing
 
