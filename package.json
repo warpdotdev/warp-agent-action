@@ -29,7 +29,7 @@
     "lint": "npx eslint .",
     "package": "npx rollup --config rollup.config.js",
     "act": "npm run package && act --container-architecture linux/amd64 -j run_warp_test -s WARP_API_KEY",
-    "gen-workflows": "node scripts/build-workflows.mjs"
+    "gen-workflows": "node scripts/build-workflows.mjs && npx prettier --write .github/workflows && npx prettier --write consumer-workflows"
   },
   "dependencies": {
     "@actions/core": "^1.11.1",

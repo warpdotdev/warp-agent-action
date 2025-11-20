@@ -59,7 +59,7 @@ Each scenario is provided in three forms:
 1. Pick a scenario below (e.g., Respond to Comment, Auto Fix Issue).
 2. Copy the corresponding file from `consumer-workflows/` into `.github/workflows/` in your
    repository.
-4. Ensure the required secrets (such as `WARP_API_KEY`, and `SLACK_WEBHOOK_URL` where applicable)
+3. Ensure the required secrets (such as `WARP_API_KEY`, and `SLACK_WEBHOOK_URL` where applicable)
    are defined in your repository and mapped under the `secrets:` block.
 
 Alternatively, advanced users can call the reusable workflows directly from their own workflows via
@@ -69,7 +69,8 @@ Alternatively, advanced users can call the reusable workflows directly from thei
 
 _Full Example_: [examples/respond-to-comment.yml](examples/respond-to-comment.yml)
 
-_Consumer Template_: [consumer-workflows/respond-to-comment.yml](consumer-workflows/respond-to-comment.yml)
+_Consumer Template_:
+[consumer-workflows/respond-to-comment.yml](consumer-workflows/respond-to-comment.yml)
 
 **Usage:** Comment on a PR or Issue with `@warp-agent` (or your configured trigger phrase).
 
@@ -137,7 +138,8 @@ to fix it.
 
 _Full Example_: [examples/daily-issue-summary.yml](examples/daily-issue-summary.yml)
 
-_Consumer Template_: [consumer-workflows/daily-issue-summary.yml](consumer-workflows/daily-issue-summary.yml)
+_Consumer Template_:
+[consumer-workflows/daily-issue-summary.yml](consumer-workflows/daily-issue-summary.yml)
 
 **Usage:** Runs automatically on a schedule (every day at 9:00 UTC).
 
@@ -157,7 +159,8 @@ etc.).
 
 _Full Example_: [examples/fix-failing-checks.yml](examples/fix-failing-checks.yml)
 
-_Consumer Template_: [consumer-workflows/fix-failing-checks.yml](consumer-workflows/fix-failing-checks.yml)
+_Consumer Template_:
+[consumer-workflows/fix-failing-checks.yml](consumer-workflows/fix-failing-checks.yml)
 
 **Usage:** Triggers automatically when a specified workflow (e.g., "Continuous Integration") fails.
 
