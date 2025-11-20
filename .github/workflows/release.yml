@@ -24,15 +24,15 @@ jobs:
         run: |
           # Fetch all tags
           git fetch --tags
-          
+
           # Get the latest semantic version tag (v*.*.*)
           LATEST_TAG=$(git tag -l "v*.*.*" | sort -V | tail -n 1)
-          
+
           # If no semantic version tag exists, start with v0.0.0
           if [ -z "$LATEST_TAG" ]; then
             LATEST_TAG="v1.0.0"
           fi
-          
+
           echo "latest_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
           echo "Latest tag: $LATEST_TAG"
 
@@ -40,19 +40,19 @@ jobs:
         id: increment_version
         run: |
           LATEST_TAG="${{ steps.get_latest_tag.outputs.latest_tag }}"
-          
+
           # Remove 'v' prefix and split into components
           VERSION=${LATEST_TAG#v}
           MAJOR=$(echo $VERSION | cut -d. -f1)
           MINOR=$(echo $VERSION | cut -d. -f2)
           PATCH=$(echo $VERSION | cut -d. -f3)
-          
+
           # Increment patch version
           PATCH=$((PATCH + 1))
-          
+
           # Create new version
           NEW_VERSION="v${MAJOR}.${MINOR}.${PATCH}"
-          
+
           echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
           echo "New version: $NEW_VERSION"
 
@@ -60,17 +60,17 @@ jobs:
         id: create_tag
         run: |
           NEW_VERSION="${{ steps.increment_version.outputs.new_version }}"
-          
+
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          
+
           git tag -a "$NEW_VERSION" -m "Release $NEW_VERSION"
           git push origin "$NEW_VERSION"
-          
+
           # Update v1 tag to point to this new release
           git tag -fa v1 -m "Update v1 tag"
           git push origin v1 --force
-          
+
           echo "tag_created=$NEW_VERSION" >> $GITHUB_OUTPUT
 
       - name: Generate release notes
@@ -78,23 +78,23 @@ jobs:
         run: |
           NEW_VERSION="${{ steps.increment_version.outputs.new_version }}"
           LATEST_TAG="${{ steps.get_latest_tag.outputs.latest_tag }}"
-          
+
           # Get commit messages since last tag
           if [ "$LATEST_TAG" = "v1.0.0" ]; then
             COMMITS=$(git log --pretty=format:"- %s (%h)" -n 10)
           else
             COMMITS=$(git log ${LATEST_TAG}..HEAD --pretty=format:"- %s (%h)")
           fi
-          
+
           # Create release notes
           cat > release_notes.md << EOF
           ## What's Changed
-          
+
           $COMMITS
-          
+
           **Full Changelog**: https://github.com/${{ github.repository }}/compare/${LATEST_TAG}...${NEW_VERSION}
           EOF
-          
+
           echo "Release notes generated"
 
       - name: Create GitHub Release
@@ -103,7 +103,7 @@ jobs:
           script: |
             const fs = require('fs');
             const releaseNotes = fs.readFileSync('release_notes.md', 'utf8');
-            
+
             await github.rest.repos.createRelease({
               owner: context.repo.owner,
               repo: context.repo.repo,
