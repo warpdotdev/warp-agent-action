@@ -20,7 +20,6 @@ const scenarios = [
     exampleFile: 'examples/respond-to-comment.yml',
     mainJobId: 'respond',
     reusableWorkflow: {
-      enabled: true,
       inputs: {
         profile: {
           description: 'Optional Warp Agent profile name to use for Warp Agent.',
@@ -36,7 +35,6 @@ const scenarios = [
       }
     },
     consumerTemplate: {
-      enabled: true,
       pinWarpAgentVersion: 'v1'
     }
   },
@@ -45,7 +43,6 @@ const scenarios = [
     exampleFile: 'examples/review-pr.yml',
     mainJobId: 'review_pr',
     reusableWorkflow: {
-      enabled: true,
       inputs: {
         profile: {
           description: 'Optional Warp Agent profile name to use for Warp Agent.',
@@ -61,7 +58,6 @@ const scenarios = [
       }
     },
     consumerTemplate: {
-      enabled: true,
       pinWarpAgentVersion: 'v1'
     }
   },
@@ -70,7 +66,6 @@ const scenarios = [
     exampleFile: 'examples/auto-fix-issue.yml',
     mainJobId: 'auto_fix',
     reusableWorkflow: {
-      enabled: true,
       inputs: {
         profile: {
           description: 'Optional Warp Agent profile name to use for Warp Agent.',
@@ -86,7 +81,6 @@ const scenarios = [
       }
     },
     consumerTemplate: {
-      enabled: true,
       pinWarpAgentVersion: 'v1'
     }
   },
@@ -95,7 +89,6 @@ const scenarios = [
     exampleFile: 'examples/daily-issue-summary.yml',
     mainJobId: 'summarize_issues',
     reusableWorkflow: {
-      enabled: true,
       inputs: {
         profile: {
           description: 'Optional Warp Agent profile name to use for Warp Agent.',
@@ -115,7 +108,6 @@ const scenarios = [
       }
     },
     consumerTemplate: {
-      enabled: true,
       pinWarpAgentVersion: 'v1'
     }
   },
@@ -124,7 +116,6 @@ const scenarios = [
     exampleFile: 'examples/fix-failing-checks.yml',
     mainJobId: 'fix_failure',
     reusableWorkflow: {
-      enabled: true,
       inputs: {
         profile: {
           description: 'Optional Warp Agent profile name to use for Warp Agent.',
@@ -140,7 +131,6 @@ const scenarios = [
       }
     },
     consumerTemplate: {
-      enabled: true,
       pinWarpAgentVersion: 'v1'
     }
   }
@@ -230,23 +220,24 @@ function extractLeadingComments(yamlText) {
 }
 
 async function generateReusableWorkflow(scenario, exampleYaml) {
-  if (!scenario.reusableWorkflow?.enabled) return
+  if (!scenario.reusableWorkflow) return
 
   const exampleObj = yaml.parse(exampleYaml)
   if (!exampleObj || typeof exampleObj !== 'object') {
     throw new Error(`Example workflow ${scenario.exampleFile} did not parse into an object`)
   }
-  if (!exampleObj.jobs || !exampleObj.jobs[scenario.mainJobId]) {
-    throw new Error(
-      `Example workflow ${scenario.exampleFile} does not contain expected main job '${scenario.mainJobId}'`
-    )
+  if (!exampleObj.jobs || Object.keys(exampleObj.jobs).length === 0) {
+    throw new Error(`Example workflow ${scenario.exampleFile} does not contain any jobs`)
   }
 
-  const jobClone = deepClone(exampleObj.jobs[scenario.mainJobId])
+  // Clone all jobs from the example
+  const jobsClone = deepClone(exampleObj.jobs)
 
   // Allow overriding the Warp Agent profile via workflow_call inputs.
   const hasProfileInput = Boolean(scenario.reusableWorkflow.inputs?.profile)
-  updateWarpProfileInput(jobClone, hasProfileInput)
+  for (const job of Object.values(jobsClone)) {
+    updateWarpProfileInput(job, hasProfileInput)
+  }
 
   const workflowCall = {}
   const inputs = buildWorkflowCallInputs(scenario.reusableWorkflow.inputs)
@@ -263,9 +254,7 @@ async function generateReusableWorkflow(scenario, exampleYaml) {
     on: {
       workflow_call: workflowCall
     },
-    jobs: {
-      [scenario.mainJobId]: jobClone
-    }
+    jobs: jobsClone
   }
 
   const header =
@@ -282,16 +271,26 @@ async function generateReusableWorkflow(scenario, exampleYaml) {
 }
 
 async function generateConsumerTemplate(scenario, exampleYaml) {
-  if (!scenario.consumerTemplate?.enabled) return
+  if (!scenario.consumerTemplate) return
 
   const exampleObj = yaml.parse(exampleYaml)
   if (!exampleObj || typeof exampleObj !== 'object') {
     throw new Error(`Example workflow ${scenario.exampleFile} did not parse into an object`)
   }
+  if (!exampleObj.jobs || Object.keys(exampleObj.jobs).length === 0) {
+    throw new Error(`Example workflow ${scenario.exampleFile} does not contain any jobs`)
+  }
+  if (!scenario.mainJobId || !exampleObj.jobs[scenario.mainJobId]) {
+    throw new Error(
+      `Example workflow ${scenario.exampleFile} does not contain expected main job '${scenario.mainJobId}'`
+    )
+  }
 
   const leadingComments = extractLeadingComments(exampleYaml)
 
-  const jobId = scenario.mainJobId
+  // Clone all jobs from the example
+  const jobsClone = deepClone(exampleObj.jobs)
+
   const usesRefVersion = scenario.consumerTemplate.pinWarpAgentVersion || 'v1'
   const usesRef = `warpdotdev/warp-agent-action/.github/workflows/${scenario.scenarioId}.yml@${usesRefVersion}`
 
@@ -308,20 +307,21 @@ async function generateConsumerTemplate(scenario, exampleYaml) {
     }
   }
 
-  const job = { uses: usesRef }
+  // Replace the main job with a workflow call
+  const workflowCallJob = { uses: usesRef }
   if (Object.keys(withBlock).length > 0) {
-    job.with = withBlock
+    workflowCallJob.with = withBlock
   }
   if (Object.keys(secretsBlock).length > 0) {
-    job.secrets = secretsBlock
+    workflowCallJob.secrets = secretsBlock
   }
+
+  jobsClone[scenario.mainJobId] = workflowCallJob
 
   const template = {
     name: exampleObj.name || scenario.scenarioId,
     on: exampleObj.on,
-    jobs: {
-      [jobId]: job
-    }
+    jobs: jobsClone
   }
 
   const header =
