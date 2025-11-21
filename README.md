@@ -45,9 +45,32 @@ See the [action definition](./action.yml) for all options.
 This repository includes several example workflows in `examples/` that demonstrate how to use the
 Warp Agent Action for common development tasks.
 
+Each scenario is provided in three forms:
+
+- A **full reference workflow** in `examples/` that shows all jobs, permissions, and steps.
+- A **reusable workflow** in `.github/workflows/` that can be invoked via `workflow_call` from other
+  workflows.
+- A **lightweight consumer template** in `consumer-workflows/` that wires the appropriate triggers
+  and calls the reusable workflow via `jobs.<id>.uses`. These templates are intended to be copied
+  into `.github/workflows/` in your own repository and customized.
+
+### How to use the scenario workflows
+
+1. Pick a scenario below (e.g., Respond to Comment, Auto Fix Issue).
+2. Copy the corresponding file from `consumer-workflows/` into `.github/workflows/` in your
+   repository.
+3. Ensure the required secrets (such as `WARP_API_KEY`, and `SLACK_WEBHOOK_URL` where applicable)
+   are defined in your repository and mapped under the `secrets:` block.
+
+Alternatively, advanced users can call the reusable workflows directly from their own workflows via
+`jobs.<id>.uses` and wire `with:` and `secrets:` manually.
+
 ### Respond to Comment
 
-_File: [examples/respond-to-comment.yml](examples/respond-to-comment.yml)_
+_Full Example_: [examples/respond-to-comment.yml](examples/respond-to-comment.yml)
+
+_Consumer Template_:
+[consumer-workflows/respond-to-comment.yml](consumer-workflows/respond-to-comment.yml)
 
 **Usage:** Comment on a PR or Issue with `@warp-agent` (or your configured trigger phrase).
 
@@ -67,7 +90,9 @@ this typo").
 
 ### Auto PR Review
 
-_File: [examples/review-pr.yml](examples/review-pr.yml)_
+_Full Example_: [examples/review-pr.yml](examples/review-pr.yml)
+
+_Consumer Template_: [consumer-workflows/review-pr.yml](consumer-workflows/review-pr.yml)
 
 **Usage:** Runs automatically when a Pull Request is opened or marked ready for review.
 
@@ -88,7 +113,9 @@ _File: [examples/review-pr.yml](examples/review-pr.yml)_
 
 ### Auto Fix Issue
 
-_File: [examples/auto-fix-issue.yml](examples/auto-fix-issue.yml)_
+_Full Example_: [examples/auto-fix-issue.yml](examples/auto-fix-issue.yml)
+
+_Consumer Template_: [consumer-workflows/auto-fix-issue.yml](consumer-workflows/auto-fix-issue.yml)
 
 **Usage:** Apply the label `warp-agent` to any GitHub Issue.
 
@@ -109,7 +136,10 @@ to fix it.
 
 ### Daily Issue Summary
 
-_File: [examples/daily-issue-summary.yml](examples/daily-issue-summary.yml)_
+_Full Example_: [examples/daily-issue-summary.yml](examples/daily-issue-summary.yml)
+
+_Consumer Template_:
+[consumer-workflows/daily-issue-summary.yml](consumer-workflows/daily-issue-summary.yml)
 
 **Usage:** Runs automatically on a schedule (every day at 9:00 UTC).
 
@@ -127,7 +157,10 @@ etc.).
 
 ### Fix Failing Checks
 
-_File: [examples/fix-failing-checks.yml](examples/fix-failing-checks.yml)_
+_Full Example_: [examples/fix-failing-checks.yml](examples/fix-failing-checks.yml)
+
+_Consumer Template_:
+[consumer-workflows/fix-failing-checks.yml](consumer-workflows/fix-failing-checks.yml)
 
 **Usage:** Triggers automatically when a specified workflow (e.g., "Continuous Integration") fails.
 
