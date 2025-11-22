@@ -80,6 +80,7 @@ jobs:
             const workflowName = '${{ github.event.workflow_run.name }}';
             const repoName = context.repo.repo;
             const branchName = '${{ github.event.workflow_run.head_branch }}';
+            const summaryFile = `output_summary_${runId}.md`;
 
             const prompt = `You are an expert software engineer and the Warp Agent.
             You are tasked with fixing a CI failure in the repository '${repoName}' on branch '${branchName}'.
@@ -105,7 +106,18 @@ jobs:
                 -   If it's a test failure, fix the code logic or update the test if the test is incorrect.
                 -   If it's a lint error, fix the style.
             4.  **Verify**: Ensure your changes are minimal and targeted.
-            5.  **Output**: Do not output the diff. Just explain what you fixed in a concise summary.
+            5.  **Output**: Do not output the diff. Instead, write a concise summary of your changes to a markdown file named \`${summaryFile}\`. The format of the file should be as follows:
+
+            <summary-example>
+            ## Tests Addressed
+            I fixed the following failing workflow steps:
+            - Test 1
+            - Test 2
+
+            ## Problem Summary
+            To fix the failures, I changed:
+            1. Fixed issue x in file y...
+            </summary-example>
 
             **Constraints**:
             -   Do NOT modify the workflow files (.github/workflows/) unless the error is specifically about the workflow configuration.
@@ -142,6 +154,16 @@ jobs:
 
           echo "Changes detected. Preparing PR."
 
+          # Get summary from file 
+          SUMMARY_FILE="output_summary_$RUN_ID.md"
+          if [-f "$SUMMARY_FILE"]; then
+            SUMMARY_CONTENT=$(cat "$SUMMARY_FILE")
+            # Clean up summary file so its not committed
+            rm -f "$SUMMARY_FILE"
+          else 
+            echo "Warning: Summary file $SUMMARY_FILE not found."
+          fi
+
           FIX_BRANCH="warp-agent-fix/run-$RUN_ID"
           git config user.name "Warp Agent"
           git config user.email "agent@warp.dev"
@@ -157,8 +179,12 @@ jobs:
 
           BODY="This PR attempts to fix the CI failures in run [$RUN_ID](${{ github.event.workflow_run.html_url }}).
 
-          **Agent Output:**
-          $AGENT_OUTPUT
+          $SUMMARY_CONTENT
+
+          ## Full Output
+          <details>
+          <summary>Click to expand full agent output</summary>
+          </details>
           "
 
           if [ "$PR_NUMBER" == "null" ] || [ -z "$PR_NUMBER" ]; then
