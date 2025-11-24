@@ -61,15 +61,19 @@ jobs:
         run: |
           NEW_VERSION="${{ steps.increment_version.outputs.new_version }}"
 
+          MAJOR=$(echo $NEW_VERSION | cut -d. -f1)
+          MINOR=$(echo $NEW_VERSION | cut -d. -f2)
+          PATCH=$(echo $NEW_VERSION | cut -d. -f3)
+
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
           git tag -a "$NEW_VERSION" -m "Release $NEW_VERSION"
           git push origin "$NEW_VERSION"
 
-          # Update v1 tag to point to this new release
-          git tag -fa v1 -m "Update v1 tag"
-          git push origin v1 --force
+          # Update major version tag to point to this new release
+          git tag -fa v${MAJOR} -m "Update ${MAJOR} tag"
+          git push origin v${MAJOR} --force
 
           echo "tag_created=$NEW_VERSION" >> $GITHUB_OUTPUT
 
