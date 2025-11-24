@@ -28,7 +28,7 @@ jobs:
           # Get the latest semantic version tag (v*.*.*)
           LATEST_TAG=$(git tag -l "v*.*.*" | sort -V | tail -n 1)
 
-          # If no semantic version tag exists, start with v0.0.0
+          # If no semantic version tag exists, start with v1.0.0
           if [ -z "$LATEST_TAG" ]; then
             LATEST_TAG="v1.0.0"
           fi
@@ -61,9 +61,11 @@ jobs:
         run: |
           NEW_VERSION="${{ steps.increment_version.outputs.new_version }}"
 
-          MAJOR=$(echo $NEW_VERSION | cut -d. -f1)
-          MINOR=$(echo $NEW_VERSION | cut -d. -f2)
-          PATCH=$(echo $NEW_VERSION | cut -d. -f3)
+          # Remove 'v' prefix and split into components
+          VERSION=${NEW_VERSION#v}
+          MAJOR=$(echo $VERSION | cut -d. -f1)
+          MINOR=$(echo $VERSION | cut -d. -f2)
+          PATCH=$(echo $VERSION | cut -d. -f3)
 
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
