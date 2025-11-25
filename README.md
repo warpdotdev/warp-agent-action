@@ -178,3 +178,27 @@ a fix.
 - Comments on the original PR (if applicable) with a link to the fix.
 
 **When to use:** Reduce downtime caused by broken builds or flaky tests.
+
+### Suggest Review Fixes
+
+_Full Example_: [examples/suggest-review-fixes.yml](examples/suggest-review-fixes.yml)
+
+_Consumer Template_:
+[consumer-workflows/suggest-review-fixes.yml](consumer-workflows/suggest-review-fixes.yml)
+
+**Usage:** Runs automatically when a Pull Request review is submitted.
+
+**Description:** Analyzes review comments. If a comment requests a simple fix (e.g., typo, naming,
+style), the Agent replies with a code suggestion block containing the fix.
+
+**Setup:**
+
+- Ensure `WARP_API_KEY` is set in Repository Secrets.
+- Action requires write permissions for `contents` and `pull-requests`.
+
+**Expected Output:**
+
+- Replies to review comments with code suggestions for simple fixes.
+- Skips complex or unclear comments.
+
+**When to use:** Speed up the cycle of applying review feedback for trivial issues.

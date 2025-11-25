@@ -133,6 +133,29 @@ const scenarios = [
     consumerTemplate: {
       pinWarpAgentVersion: 'v1'
     }
+  },
+  {
+    scenarioId: 'suggest-review-fixes',
+    exampleFile: 'examples/suggest-review-fixes.yml',
+    mainJobId: 'suggest_review_fixes',
+    reusableWorkflow: {
+      inputs: {
+        profile: {
+          description: 'Optional Warp Agent profile name to use for Warp Agent.',
+          required: false,
+          default: ''
+        }
+      },
+      secrets: {
+        WARP_API_KEY: {
+          description: 'Warp API key used by the Warp Agent.',
+          required: true
+        }
+      }
+    },
+    consumerTemplate: {
+      pinWarpAgentVersion: 'v1'
+    }
   }
 ]
 
