@@ -52,20 +52,17 @@ jobs:
 
             Output a file responses.json with this format:
             {
-              "<comment_id>": {
-                "reply": "Your minimal explanation here, followed by a suggestion block",
-              }
+              "<comment_id>": "Your minimal explanation here, followed by a suggestion block"
             }
 
-            When you can propose a specific code fix, the \`reply\` field should contain a suggestion block in your comment body. 
-            -  Format:
+            The suggestion block must contain **only the changed code**, with no extra, unchanged context lines before or after the change.
+
+            The format of the suggestion block should be as follows:
             \`\`\`suggestion
             <only the code you are proposing as the replacement for the selected lines>
             \`\`\`
-            -   The suggestion block must contain **only the changed code**, with no extra, unchanged context lines before or after the change.
-            -   For suggestions where the original code spans multiple lines, you must also include a \`start_line\` field in the JSON comment representing the first line of the range covered by the suggestion; \`line\` should be the last line of the range.
 
-            Only include comments you can address. Omit comments you skipped.
+            For suggestions where the original code spans multiple lines, you must also include a \`start_line\` field in the JSON comment representing the first line of the range covered by the suggestion; \`line\` should be the last line of the range.
             `;
             core.setOutput('prompt', prompt);
       - name: Run Warp Agent
@@ -76,6 +73,7 @@ jobs:
           prompt: ${{ steps.prompt.outputs.prompt }}
       - name: Reply to comments
         uses: actions/github-script@v7
+        if: always()
         with:
           script: |
             const fs = require('fs');
@@ -95,8 +93,8 @@ jobs:
             const { owner, repo } = context.repo;
             const prNumber = context.payload.pull_request.number;
 
-            for (const [commentId, { reply }] of Object.entries(responses)) {
-              if (!reply) continue;
+            for (const [commentId, reply] of Object.entries(responses)) {
+              if (!reply || !reply.includes('```suggestion')) continue;
               
               core.info(`Replying to comment ${commentId}`);
               try {
@@ -104,7 +102,7 @@ jobs:
                   owner, repo,
                   pull_number: prNumber,
                   comment_id: Number(commentId),
-                  body: response.reply
+                  body: reply
                 });
               } catch (error) {
                 core.error(`Failed to reply to comment ${commentId}:`, error);
