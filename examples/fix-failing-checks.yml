@@ -80,6 +80,7 @@ jobs:
             const workflowName = '${{ github.event.workflow_run.name }}';
             const repoName = context.repo.repo;
             const branchName = '${{ github.event.workflow_run.head_branch }}';
+            const runId = github.event.workflow_run.id;
             const summaryFile = `output_summary_${runId}.md`;
 
             const prompt = `You are an expert software engineer and the Warp Agent.
