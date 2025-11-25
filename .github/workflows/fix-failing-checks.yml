@@ -128,6 +128,7 @@ jobs:
           ORIGINAL_BRANCH: ${{ github.event.workflow_run.head_branch }}
           RUN_ID: ${{ github.event.workflow_run.id }}
           AGENT_OUTPUT: ${{ steps.agent.outputs.agent_output }}
+        if: always()
         run: |
           # Remove temporary files that should not be committed
           rm -f failure_logs.txt
@@ -142,7 +143,7 @@ jobs:
 
           # Get summary from file 
           SUMMARY_FILE="output_summary_$RUN_ID.md"
-          if [-f "$SUMMARY_FILE"]; then
+          if [ -f "$SUMMARY_FILE" ]; then
             SUMMARY_CONTENT=$(cat "$SUMMARY_FILE")
             # Clean up summary file so its not committed
             rm -f "$SUMMARY_FILE"
