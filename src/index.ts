@@ -1,5 +1,7 @@
 import * as process from 'process'
 import * as path from 'path'
+import * as fs from 'fs'
+import * as os from 'os'
 
 import * as core from '@actions/core'
 import * as exec from '@actions/exec'
@@ -73,14 +75,21 @@ async function runAgent(): Promise<void> {
     args.push('--debug')
   }
 
-  const { stdout } = await exec.getExecOutput(command, args, {
-    env: {
-      ...process.env,
-      WARP_API_KEY: apiKey
-    }
-  })
+  let execResult
+  try {
+    execResult = await exec.getExecOutput(command, args, {
+      env: {
+        ...process.env,
+        WARP_API_KEY: apiKey
+      }
+    })
+  } catch (error) {
+    // Show Warp logs for troubleshooting.
+    await logWarpLogFile(channel)
+    throw error
+  }
 
-  core.setOutput('agent_output', stdout)
+  core.setOutput('agent_output', execResult.stdout)
 }
 
 // Install the Warp CLI, using the specified channel and version.
@@ -160,6 +169,27 @@ async function downloadWarpDeb(channel: string, version: string): Promise<string
     core.debug('Using cached .deb package')
   }
   return path.join(cachedDeb, 'warp-cli.deb')
+}
+
+// Dump the Warp log file contents if it exists.
+async function logWarpLogFile(channel: string): Promise<void> {
+  const stateDir = process.env.XDG_STATE_DIR || path.join(os.homedir(), '.local', 'state')
+  const channelSuffix = channel === 'stable' ? '' : `-${channel}`
+  const logFileName = channel === 'stable' ? 'warp.log' : `warp_${channel}.log`
+  const warpLogPath = path.join(stateDir, `warp-terminal${channelSuffix}`, logFileName)
+
+  if (fs.existsSync(warpLogPath)) {
+    await core.group('Warp Logs', async () => {
+      try {
+        const logContents = fs.readFileSync(warpLogPath, 'utf8')
+        core.info(logContents)
+      } catch (error) {
+        core.warning(`Failed to read warp.log: ${error}`)
+      }
+    })
+  } else {
+    core.warning(`warp.log not found at ${warpLogPath}`)
+  }
 }
 
 try {

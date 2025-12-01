@@ -1,13 +1,15 @@
 import * as process$1 from 'process';
-import * as require$$1 from 'path';
-import require$$1__default from 'path';
-import require$$0 from 'os';
+import * as path from 'path';
+import path__default from 'path';
+import * as require$$1 from 'fs';
+import require$$1__default from 'fs';
+import * as require$$0 from 'os';
+import require$$0__default from 'os';
 import require$$0$1 from 'crypto';
-import require$$1$1 from 'fs';
 import require$$2 from 'http';
 import require$$3 from 'https';
 import require$$0$4 from 'net';
-import require$$1$2 from 'tls';
+import require$$1$1 from 'tls';
 import require$$4 from 'events';
 import require$$0$3 from 'assert';
 import require$$0$2 from 'util';
@@ -16,14 +18,14 @@ import require$$7 from 'buffer';
 import require$$8 from 'querystring';
 import require$$14 from 'stream/web';
 import require$$0$7 from 'node:stream';
-import require$$1$3 from 'node:util';
+import require$$1$2 from 'node:util';
 import require$$0$6 from 'node:events';
 import require$$0$8 from 'worker_threads';
 import require$$2$1 from 'perf_hooks';
 import require$$5 from 'util/types';
 import require$$4$1 from 'async_hooks';
-import require$$1$4 from 'console';
-import require$$1$5 from 'url';
+import require$$1$3 from 'console';
+import require$$1$4 from 'url';
 import require$$3$1 from 'zlib';
 import require$$6 from 'string_decoder';
 import require$$0$9 from 'diagnostics_channel';
@@ -115,7 +117,7 @@ function requireCommand () {
 	};
 	Object.defineProperty(command, "__esModule", { value: true });
 	command.issue = command.issueCommand = void 0;
-	const os = __importStar(require$$0);
+	const os = __importStar(require$$0__default);
 	const utils_1 = requireUtils$1();
 	/**
 	 * Commands
@@ -224,8 +226,8 @@ function requireFileCommand () {
 	// We use any as a valid input type
 	/* eslint-disable @typescript-eslint/no-explicit-any */
 	const crypto = __importStar(require$$0$1);
-	const fs = __importStar(require$$1$1);
-	const os = __importStar(require$$0);
+	const fs = __importStar(require$$1__default);
+	const os = __importStar(require$$0__default);
 	const utils_1 = requireUtils$1();
 	function issueFileCommand(command, message) {
 	    const filePath = process.env[`GITHUB_${command}`];
@@ -374,7 +376,7 @@ var hasRequiredTunnel$1;
 function requireTunnel$1 () {
 	if (hasRequiredTunnel$1) return tunnel$1;
 	hasRequiredTunnel$1 = 1;
-	var tls = require$$1$2;
+	var tls = require$$1$1;
 	var http = require$$2;
 	var https = require$$3;
 	var events = require$$4;
@@ -1756,7 +1758,7 @@ function requireSbmh () {
 	 * by Hongli Lai at: https://github.com/FooBarWidget/boyer-moore-horspool
 	 */
 	const EventEmitter = require$$0$6.EventEmitter;
-	const inherits = require$$1$3.inherits;
+	const inherits = require$$1$2.inherits;
 
 	function SBMH (needle) {
 	  if (typeof needle === 'string') {
@@ -1965,7 +1967,7 @@ function requirePartStream () {
 	if (hasRequiredPartStream) return PartStream_1;
 	hasRequiredPartStream = 1;
 
-	const inherits = require$$1$3.inherits;
+	const inherits = require$$1$2.inherits;
 	const ReadableStream = require$$0$7.Readable;
 
 	function PartStream (opts) {
@@ -2011,7 +2013,7 @@ function requireHeaderParser () {
 	hasRequiredHeaderParser = 1;
 
 	const EventEmitter = require$$0$6.EventEmitter;
-	const inherits = require$$1$3.inherits;
+	const inherits = require$$1$2.inherits;
 	const getLimit = requireGetLimit();
 
 	const StreamSearch = requireSbmh();
@@ -2119,7 +2121,7 @@ function requireDicer () {
 	hasRequiredDicer = 1;
 
 	const WritableStream = require$$0$7.Writable;
-	const inherits = require$$1$3.inherits;
+	const inherits = require$$1$2.inherits;
 
 	const StreamSearch = requireSbmh();
 
@@ -2696,7 +2698,7 @@ function requireMultipart () {
 	//     -- this will require modifications to utils.parseParams
 
 	const { Readable } = require$$0$7;
-	const { inherits } = require$$1$3;
+	const { inherits } = require$$1$2;
 
 	const Dicer = requireDicer();
 
@@ -3262,7 +3264,7 @@ function requireMain () {
 	hasRequiredMain = 1;
 
 	const WritableStream = require$$0$7.Writable;
-	const { inherits } = require$$1$3;
+	const { inherits } = require$$1$2;
 	const Dicer = requireDicer();
 
 	const MultipartParser = requireMultipart();
@@ -8086,7 +8088,7 @@ function requireConnect () {
 	    let socket;
 	    if (protocol === 'https:') {
 	      if (!tls) {
-	        tls = require$$1$2;
+	        tls = require$$1$1;
 	      }
 	      servername = servername || options.servername || util.getServerName(host) || null;
 
@@ -14110,7 +14112,7 @@ function requirePendingInterceptorsFormatter () {
 	hasRequiredPendingInterceptorsFormatter = 1;
 
 	const { Transform } = require$$0$5;
-	const { Console } = require$$1$4;
+	const { Console } = require$$1$3;
 
 	/**
 	 * Gets the output of `console.table(…)` as a string.
@@ -14337,7 +14339,7 @@ function requireProxyAgent () {
 	hasRequiredProxyAgent = 1;
 
 	const { kProxy, kClose, kDestroy, kInterceptors } = requireSymbols$4();
-	const { URL } = require$$1$5;
+	const { URL } = require$$1$4;
 	const Agent = requireAgent();
 	const Pool = requirePool();
 	const DispatcherBase = requireDispatcherBase();
@@ -25201,8 +25203,8 @@ function requireSummary () {
 		};
 		Object.defineProperty(exports$1, "__esModule", { value: true });
 		exports$1.summary = exports$1.markdownSummary = exports$1.SUMMARY_DOCS_URL = exports$1.SUMMARY_ENV_VAR = void 0;
-		const os_1 = require$$0;
-		const fs_1 = require$$1$1;
+		const os_1 = require$$0__default;
+		const fs_1 = require$$1__default;
 		const { access, appendFile, writeFile } = fs_1.promises;
 		exports$1.SUMMARY_ENV_VAR = 'GITHUB_STEP_SUMMARY';
 		exports$1.SUMMARY_DOCS_URL = 'https://docs.github.com/actions/using-workflows/workflow-commands-for-github-actions#adding-a-job-summary';
@@ -25508,7 +25510,7 @@ function requirePathUtils () {
 	};
 	Object.defineProperty(pathUtils, "__esModule", { value: true });
 	pathUtils.toPlatformPath = pathUtils.toWin32Path = pathUtils.toPosixPath = void 0;
-	const path = __importStar(require$$1__default);
+	const path = __importStar(path__default);
 	/**
 	 * toPosixPath converts the given path to the posix form. On Windows, \\ will be
 	 * replaced with /.
@@ -25594,8 +25596,8 @@ function requireIoUtil () {
 		var _a;
 		Object.defineProperty(exports$1, "__esModule", { value: true });
 		exports$1.getCmdPath = exports$1.tryGetExecutablePath = exports$1.isRooted = exports$1.isDirectory = exports$1.exists = exports$1.READONLY = exports$1.UV_FS_O_EXLOCK = exports$1.IS_WINDOWS = exports$1.unlink = exports$1.symlink = exports$1.stat = exports$1.rmdir = exports$1.rm = exports$1.rename = exports$1.readlink = exports$1.readdir = exports$1.open = exports$1.mkdir = exports$1.lstat = exports$1.copyFile = exports$1.chmod = void 0;
-		const fs = __importStar(require$$1$1);
-		const path = __importStar(require$$1__default);
+		const fs = __importStar(require$$1__default);
+		const path = __importStar(path__default);
 		_a = fs.promises
 		// export const {open} = 'fs'
 		, exports$1.chmod = _a.chmod, exports$1.copyFile = _a.copyFile, exports$1.lstat = _a.lstat, exports$1.mkdir = _a.mkdir, exports$1.open = _a.open, exports$1.readdir = _a.readdir, exports$1.readlink = _a.readlink, exports$1.rename = _a.rename, exports$1.rm = _a.rm, exports$1.rmdir = _a.rmdir, exports$1.stat = _a.stat, exports$1.symlink = _a.symlink, exports$1.unlink = _a.unlink;
@@ -25785,7 +25787,7 @@ function requireIo () {
 	Object.defineProperty(io, "__esModule", { value: true });
 	io.findInPath = io.which = io.mkdirP = io.rmRF = io.mv = io.cp = void 0;
 	const assert_1 = require$$0$3;
-	const path = __importStar(require$$1__default);
+	const path = __importStar(path__default);
 	const ioUtil = __importStar(requireIoUtil());
 	/**
 	 * Copies a file or folder.
@@ -26090,10 +26092,10 @@ function requireToolrunner () {
 	};
 	Object.defineProperty(toolrunner, "__esModule", { value: true });
 	toolrunner.argStringToArray = toolrunner.ToolRunner = void 0;
-	const os = __importStar(require$$0);
+	const os = __importStar(require$$0__default);
 	const events = __importStar(require$$4);
 	const child = __importStar(require$$2$2);
-	const path = __importStar(require$$1__default);
+	const path = __importStar(path__default);
 	const io = __importStar(requireIo());
 	const ioUtil = __importStar(requireIoUtil());
 	const timers_1 = require$$6$1;
@@ -26833,7 +26835,7 @@ function requirePlatform () {
 		};
 		Object.defineProperty(exports$1, "__esModule", { value: true });
 		exports$1.getDetails = exports$1.isLinux = exports$1.isMacOS = exports$1.isWindows = exports$1.arch = exports$1.platform = void 0;
-		const os_1 = __importDefault(require$$0);
+		const os_1 = __importDefault(require$$0__default);
 		const exec = __importStar(requireExec());
 		const getWindowsInfo = () => __awaiter(void 0, void 0, void 0, function* () {
 		    const { stdout: version } = yield exec.getExecOutput('powershell -command "(Get-CimInstance -ClassName Win32_OperatingSystem).Version"', undefined, {
@@ -26936,8 +26938,8 @@ function requireCore () {
 		const command_1 = requireCommand();
 		const file_command_1 = requireFileCommand();
 		const utils_1 = requireUtils$1();
-		const os = __importStar(require$$0);
-		const path = __importStar(require$$1__default);
+		const os = __importStar(require$$0__default);
+		const path = __importStar(path__default);
 		const oidc_utils_1 = requireOidcUtils();
 		/**
 		 * The code to exit an action
@@ -28955,9 +28957,9 @@ function requireManifest () {
 		const core_1 = requireCore();
 		// needs to be require for core node modules to be mocked
 		/* eslint @typescript-eslint/no-require-imports: 0 */
-		const os = require$$0;
+		const os = require$$0__default;
 		const cp = require$$2$2;
-		const fs = require$$1$1;
+		const fs = require$$1__default;
 		function _findMatch(versionSpec, stable, candidates, archFilter) {
 		    return __awaiter(this, void 0, void 0, function* () {
 		        const platFilter = os.platform();
@@ -29187,10 +29189,10 @@ function requireToolCache () {
 	const core = __importStar(requireCore());
 	const io = __importStar(requireIo());
 	const crypto = __importStar(require$$0$1);
-	const fs = __importStar(require$$1$1);
+	const fs = __importStar(require$$1__default);
 	const mm = __importStar(requireManifest());
-	const os = __importStar(require$$0);
-	const path = __importStar(require$$1__default);
+	const os = __importStar(require$$0__default);
+	const path = __importStar(path__default);
 	const httpm = __importStar(requireLib());
 	const semver = __importStar(requireSemver());
 	const stream = __importStar(require$$0$5);
@@ -29878,13 +29880,21 @@ async function runAgent() {
     if (coreExports.isDebug()) {
         args.push('--debug');
     }
-    const { stdout } = await execExports.getExecOutput(command, args, {
-        env: {
-            ...process$1.env,
-            WARP_API_KEY: apiKey
-        }
-    });
-    coreExports.setOutput('agent_output', stdout);
+    let execResult;
+    try {
+        execResult = await execExports.getExecOutput(command, args, {
+            env: {
+                ...process$1.env,
+                WARP_API_KEY: apiKey
+            }
+        });
+    }
+    catch (error) {
+        // Show Warp logs for troubleshooting.
+        await logWarpLogFile(channel);
+        throw error;
+    }
+    coreExports.setOutput('agent_output', execResult.stdout);
 }
 // Install the Warp CLI, using the specified channel and version.
 async function installWarp(channel, version) {
@@ -29957,7 +29967,28 @@ async function downloadWarpDeb(channel, version) {
     else {
         coreExports.debug('Using cached .deb package');
     }
-    return require$$1.join(cachedDeb, 'warp-cli.deb');
+    return path.join(cachedDeb, 'warp-cli.deb');
+}
+// Dump the Warp log file contents if it exists.
+async function logWarpLogFile(channel) {
+    const stateDir = process$1.env.XDG_STATE_DIR || path.join(require$$0.homedir(), '.local', 'state');
+    const channelSuffix = channel === 'stable' ? '' : `-${channel}`;
+    const logFileName = channel === 'stable' ? 'warp.log' : `warp_${channel}.log`;
+    const warpLogPath = path.join(stateDir, `warp-terminal${channelSuffix}`, logFileName);
+    if (require$$1.existsSync(warpLogPath)) {
+        await coreExports.group('Warp Logs', async () => {
+            try {
+                const logContents = require$$1.readFileSync(warpLogPath, 'utf8');
+                coreExports.info(logContents);
+            }
+            catch (error) {
+                coreExports.warning(`Failed to read warp.log: ${error}`);
+            }
+        });
+    }
+    else {
+        coreExports.warning(`warp.log not found at ${warpLogPath}`);
+    }
 }
 try {
     await runAgent();
