@@ -94,7 +94,7 @@ jobs:
                 -   If it's a test failure, fix the code logic or update the test if the test is incorrect.
                 -   If it's a lint error, fix the style.
             4.  **Verify**: Ensure your changes are minimal and targeted.
-            5.  **Output**: Do not output the diff. Instead, write a concise summary of your changes to a markdown file named \`${summaryFile}\`. The format of the file should be as follows:
+            5.  **Output**: Do not output the diff and do NOT commit any changes to GitHub - you are running in a GitHub Action, which will handle committing your changes later. Instead, write a concise summary of your changes to a markdown file named \`${summaryFile}\`. The format of the file should be as follows:
 
             <summary-example>
             ## Tests Addressed
