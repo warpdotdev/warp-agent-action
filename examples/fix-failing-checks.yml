@@ -157,7 +157,7 @@ jobs:
 
           # Get summary from file 
           SUMMARY_FILE="output_summary_$RUN_ID.md"
-          if [-f "$SUMMARY_FILE"]; then
+          if [ -f "$SUMMARY_FILE" ]; then
             SUMMARY_CONTENT=$(cat "$SUMMARY_FILE")
             # Clean up summary file so its not committed
             rm -f "$SUMMARY_FILE"
