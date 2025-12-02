@@ -57,8 +57,8 @@ jobs:
           script: |
             const prompt = `You have a list of review comments in review_comments.json. For each comment:
             1. Determine if it's a small, straightforward fix (typos, naming, simple refactors, style issues).
-            2. If yes: propose a code suggestion (DO NOT modify files directly).
-            3. If no (too complex, requires design decisions, unclear): skip it.
+            2. If yes: propose a code suggestion (DO NOT modify files directly). This code suggestion will replace the part of the file included in the review comment, and only that diff hunk.
+            3. If no (too complex, requires design decisions, unclear, cannot be done in a single code suggestion): skip it.
 
             Output a file responses.json with this format:
             {
@@ -72,7 +72,10 @@ jobs:
             <only the code you are proposing as the replacement for the selected lines>
             \`\`\`
 
-            For suggestions where the original code spans multiple lines, you must also include a \`start_line\` field in the JSON comment representing the first line of the range covered by the suggestion; \`line\` should be the last line of the range.
+            As an example:
+            {
+              "12345678": "Updated the print statement to address feedback, ```suggestion\nprintln!(New version of the print statement here)\n```"
+            }
             `;
             core.setOutput('prompt', prompt);
 
@@ -106,6 +109,10 @@ jobs:
             const prNumber = context.payload.pull_request.number;
 
             for (const [commentId, reply] of Object.entries(responses)) {
+              if (typeof reply !== 'string') {
+                core.info(`Skipping comment ${commentId}: reply is not a string. Value: ${JSON.stringify(response)}`);
+                continue;
+              }
               if (!reply || !reply.includes('```suggestion')) continue;
               
               core.info(`Replying to comment ${commentId}`);
