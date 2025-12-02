@@ -62,7 +62,10 @@ jobs:
             <only the code you are proposing as the replacement for the selected lines>
             \`\`\`
 
-            For suggestions where the original code spans multiple lines, you must also include a \`start_line\` field in the JSON comment representing the first line of the range covered by the suggestion; \`line\` should be the last line of the range.
+            As an example:
+            {
+              "12345678": "Updated the comment to address feedback, ```suggestion\n// New version of the comment here\n```"
+            }
             `;
             core.setOutput('prompt', prompt);
       - name: Run Warp Agent
@@ -94,6 +97,10 @@ jobs:
             const prNumber = context.payload.pull_request.number;
 
             for (const [commentId, reply] of Object.entries(responses)) {
+              if (typeof reply !== 'string') {
+                core.info(`Skipping comment ${commentId}: reply is not a string. Value: ${JSON.stringify(response)}`);
+                continue;
+              }
               if (!reply || !reply.includes('```suggestion')) continue;
               
               core.info(`Replying to comment ${commentId}`);
