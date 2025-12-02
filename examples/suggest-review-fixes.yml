@@ -74,7 +74,7 @@ jobs:
 
             As an example:
             {
-              "12345678": "Updated the print statement to address feedback, \`\`\`suggestion\nprintln!(New version of the print statement here)\n\`\`\`"
+              "12345678": "Updated the print statement to address feedback, \n\`\`\`suggestion\nprintln!(New version of the print statement here)\n\`\`\`"
             }
             `;
             core.setOutput('prompt', prompt);
