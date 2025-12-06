@@ -164,6 +164,7 @@ jobs:
           output_format: json
 
       - name: Commit and Push Changes
+        if: success()
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -179,6 +180,7 @@ jobs:
           fi
 
       - name: Reply to Comment
+        if: success()
         uses: actions/github-script@v7
         env:
           AGENT_OUTPUT: ${{ steps.agent.outputs.agent_output }}
@@ -209,6 +211,32 @@ jobs:
             }
 
             const body = `@${context.payload.comment.user.login}: ${content}`;
+            const { owner, repo } = context.repo;
+
+            if (context.eventName === 'pull_request_review_comment') {
+              await github.rest.pulls.createReplyForReviewComment({
+                owner,
+                repo,
+                pull_number: context.payload.pull_request.number,
+                comment_id: context.payload.comment.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number: context.payload.issue.number,
+                body,
+              });
+            }
+
+      - name: Report Agent Error
+        if: failure() && steps.agent.outcome == 'failure'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ github.token }}
+          script: |
+            const body = `@${context.payload.comment.user.login}: ⚠️ I encountered an error while processing your request. Please check the [workflow run logs](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) for more details.`;
             const { owner, repo } = context.repo;
 
             if (context.eventName === 'pull_request_review_comment') {
