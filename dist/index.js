@@ -29829,6 +29829,9 @@ async function runAgent() {
     const channel = coreExports.getInput('warp_channel');
     const prompt = coreExports.getInput('prompt');
     const savedPrompt = coreExports.getInput('saved_prompt');
+    const model = coreExports.getInput('model');
+    const name = coreExports.getInput('name');
+    const mcp = coreExports.getInput('mcp');
     if (!prompt && !savedPrompt) {
         throw new Error('Either `prompt` or `saved_prompt` must be provided');
     }
@@ -29854,6 +29857,15 @@ async function runAgent() {
     }
     if (savedPrompt) {
         args.push('--saved-prompt', savedPrompt);
+    }
+    if (model) {
+        args.push('--model', model);
+    }
+    if (name) {
+        args.push('--name', name);
+    }
+    if (mcp) {
+        args.push('--mcp', mcp);
     }
     const cwd = coreExports.getInput('cwd');
     if (cwd) {
