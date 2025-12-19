@@ -19,7 +19,7 @@ inputs:
     required: false
     default: ''
   mcp:
-    description: 'MCP configuration in JSON format to start before executing the agent'
+    description: 'MCP configuration in JSON format (or path to a mcp.json file) to start before executing the agent'
     required: false
     default: ''
   cwd:
