@@ -14,6 +14,10 @@ async function runAgent(): Promise<void> {
   const prompt = core.getInput('prompt')
   const savedPrompt = core.getInput('saved_prompt')
 
+  const model = core.getInput('model')
+  const name = core.getInput('name')
+  const mcp = core.getInput('mcp')
+
   if (!prompt && !savedPrompt) {
     throw new Error('Either `prompt` or `saved_prompt` must be provided')
   }
@@ -45,6 +49,18 @@ async function runAgent(): Promise<void> {
 
   if (savedPrompt) {
     args.push('--saved-prompt', savedPrompt)
+  }
+
+  if (model) {
+    args.push('--model', model)
+  }
+
+  if (name) {
+    args.push('--name', name)
+  }
+
+  if (mcp) {
+    args.push('--mcp', mcp)
   }
 
   const cwd = core.getInput('cwd')

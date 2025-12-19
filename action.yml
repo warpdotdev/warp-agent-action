@@ -10,6 +10,20 @@ inputs:
     description: 'Warp Drive Saved prompt ID for the Warp agent'
     required: false
     default: ''
+  model:
+    description: 'Override the base model used by the agent (Warp model ID)'
+    required: false
+    default: ''
+  name:
+    description: 'Name for this agent task'
+    required: false
+    default: ''
+  mcp:
+    description:
+      'MCP configuration in JSON format (or path to a mcp.json file) to start before executing the
+      agent'
+    required: false
+    default: ''
   cwd:
     description: 'Current working directory for the Warp agent'
     required: false

@@ -24,6 +24,11 @@ Then, add a step to your workflow that runs Warp:
       1. Use the `git` command to identify changes from the base branch
       2. Thoroughly analyze all changes, and identify any issues with style, security, or correctness
       3. If you have suggestions, use the `gh` command to comment on the PR.
+    # Optional:
+    # model: <warp-model-id>
+    # name: "PR review"
+    # mcp: |
+    #   {"mcpServers": {"github": {"command": "npx", "args": ["-y", "@modelcontextprotocol/server-github"], "env": {"GITHUB_TOKEN": "${{ secrets.GITHUB_TOKEN }}"}}}}
     warp_api_key: ${{ secrets.WARP_API_KEY }}
 ```
 
