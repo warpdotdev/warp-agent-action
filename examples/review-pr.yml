@@ -131,6 +131,7 @@ jobs:
                     -   \`start_line\` (optional): For comments or suggestions that span multiple lines, set this to the first line of the range; \`line\` should be the last line of the range on the same side.
                     -   \`path\`: The relative path to the file from the repository root.
                     -   \`body\`: The content of your comment. Provide actionable suggestions.
+                - **IMPORTANT**: You may ONLY post inline comments on lines that are strictly within the diff hunks provided. Do NOT comment on unchanged lines outside the diff.
 
             3.  **Suggest Changes**:
                 -   If you can propose a specific code fix, use a suggestion block in your comment body.
