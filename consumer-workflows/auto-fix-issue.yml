@@ -30,6 +30,10 @@ jobs:
   auto_fix:
     uses: warpdotdev/warp-agent-action/.github/workflows/auto-fix-issue.yml@v1
     with:
+      # These inputs are all optional
       profile: ''
+      model: ''
+      name: ''
+      mcp: ''
     secrets:
       WARP_API_KEY: ${{ secrets.WARP_API_KEY }}

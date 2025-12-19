@@ -11,6 +11,23 @@ on:
         required: false
         type: string
         default: ''
+      model:
+        description: Optional Warp model ID to use for Warp Agent.
+        required: false
+        type: string
+        default: ''
+      name:
+        description: Optional name for this agent task.
+        required: false
+        type: string
+        default: ''
+      mcp:
+        description:
+          Optional MCP configuration in JSON format (or a path to an mcp.json file) to start before
+          executing the agent.
+        required: false
+        type: string
+        default: ''
     secrets:
       WARP_API_KEY:
         description: Warp API key used by the Warp Agent.
@@ -150,6 +167,9 @@ jobs:
           warp_api_key: ${{ secrets.WARP_API_KEY }}
           profile: ${{ inputs.profile || vars.WARP_AGENT_PROFILE || '' }}
           output_format: json
+          model: ${{ inputs.model || vars.WARP_AGENT_MODEL || '' }}
+          name: ${{ inputs.name || vars.WARP_AGENT_NAME || '' }}
+          mcp: ${{ inputs.mcp || vars.WARP_AGENT_MCP || '' }}
       - name: Commit and Push Changes
         if: success()
         env:
