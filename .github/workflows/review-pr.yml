@@ -49,7 +49,25 @@ jobs:
           gh pr checkout ${{ github.event.pull_request.number }}
           git fetch origin ${{ github.event.pull_request.base.ref }}
           # Diff only the changes introduced in this PR, relative to the PR's base commit
-          git diff ${{ github.event.pull_request.base.sha }}...HEAD > pr_diff.txt
+          # Add line numbers to each line: OLD_LINE NEW_LINE for context, OLD_LINE for deletions, NEW_LINE for additions
+          git diff ${{ github.event.pull_request.base.sha }}...HEAD | awk '
+            /^diff --git/ { print; next }
+            /^index / { print; next }
+            /^---/ { print; next }
+            /^\+\+\+/ { print; next }
+            /^@@/ {
+              # Parse hunk header: @@ -old_start,old_count +new_start,new_count @@
+              split($2, old_parts, ",")
+              split($3, new_parts, ",")
+              old_line = -old_parts[1]
+              new_line = substr(new_parts[1], 2)
+              print
+              next
+            }
+            /^-/ { printf "[OLD:%d]%s\n", old_line++, $0; next }
+            /^\+/ { printf "[NEW:%d]%s\n", new_line++, $0; next }
+            { printf "[OLD:%d,NEW:%d]%s\n", old_line++, new_line++, $0 }
+          ' > pr_diff.txt
       - name: Construct Review Prompt
         id: prompt
         uses: actions/github-script@v7
@@ -81,7 +99,12 @@ jobs:
             - **Description**: ${pr.body || 'No description provided.'}
 
             **Code Changes (Diff)**:
-            \`\`\`diff
+            Each line in the diff is annotated with line numbers:
+            - \`[OLD:n]\` prefix indicates a deleted line at line n in the old file (use side: "LEFT")
+            - \`[NEW:n]\` prefix indicates an added line at line n in the new file (use side: "RIGHT")
+            - \`[OLD:n,NEW:m]\` prefix indicates an unchanged context line (use side: "RIGHT" with line m)
+
+            \`\`\`
             ${diffContent}
             \`\`\`
 
@@ -154,6 +177,12 @@ jobs:
           model: ${{ inputs.model || vars.WARP_AGENT_MODEL || '' }}
           name: ${{ inputs.name || vars.WARP_AGENT_NAME || '' }}
           mcp: ${{ inputs.mcp || vars.WARP_AGENT_MCP || '' }}
+      - name: Upload Review Artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: review
+          path: review.json
       - name: Post Review
         uses: actions/github-script@v7
         if: always()
