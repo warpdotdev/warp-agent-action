@@ -14,19 +14,37 @@ const repoRoot = path.resolve(__dirname, '..')
  * The example YAML files in `examples/` remain the single source of truth
  * for the actual workflow logic.
  */
+const defaultReusableWorkflowInputs = {
+  profile: {
+    description: 'Optional Warp Agent profile name to use for Warp Agent.',
+    required: false,
+    default: ''
+  },
+  model: {
+    description: 'Optional Warp model ID to use for Warp Agent.',
+    required: false,
+    default: ''
+  },
+  name: {
+    description: 'Optional name for this agent task.',
+    required: false,
+    default: ''
+  },
+  mcp: {
+    description:
+      'Optional MCP configuration in JSON format (or a path to an mcp.json file) to start before executing the agent.',
+    required: false,
+    default: ''
+  }
+}
+
 const scenarios = [
   {
     scenarioId: 'respond-to-comment',
     exampleFile: 'examples/respond-to-comment.yml',
     mainJobId: 'respond',
     reusableWorkflow: {
-      inputs: {
-        profile: {
-          description: 'Optional Warp Agent profile name to use for Warp Agent.',
-          required: false,
-          default: ''
-        }
-      },
+      inputs: defaultReusableWorkflowInputs,
       secrets: {
         WARP_API_KEY: {
           description: 'Warp API key used by the Warp Agent.',
@@ -43,13 +61,7 @@ const scenarios = [
     exampleFile: 'examples/review-pr.yml',
     mainJobId: 'review_pr',
     reusableWorkflow: {
-      inputs: {
-        profile: {
-          description: 'Optional Warp Agent profile name to use for Warp Agent.',
-          required: false,
-          default: ''
-        }
-      },
+      inputs: defaultReusableWorkflowInputs,
       secrets: {
         WARP_API_KEY: {
           description: 'Warp API key used by the Warp Agent.',
@@ -66,13 +78,7 @@ const scenarios = [
     exampleFile: 'examples/auto-fix-issue.yml',
     mainJobId: 'auto_fix',
     reusableWorkflow: {
-      inputs: {
-        profile: {
-          description: 'Optional Warp Agent profile name to use for Warp Agent.',
-          required: false,
-          default: ''
-        }
-      },
+      inputs: defaultReusableWorkflowInputs,
       secrets: {
         WARP_API_KEY: {
           description: 'Warp API key used by the Warp Agent.',
@@ -89,13 +95,7 @@ const scenarios = [
     exampleFile: 'examples/daily-issue-summary.yml',
     mainJobId: 'summarize_issues',
     reusableWorkflow: {
-      inputs: {
-        profile: {
-          description: 'Optional Warp Agent profile name to use for Warp Agent.',
-          required: false,
-          default: ''
-        }
-      },
+      inputs: defaultReusableWorkflowInputs,
       secrets: {
         WARP_API_KEY: {
           description: 'Warp API key used by the Warp Agent.',
@@ -116,13 +116,7 @@ const scenarios = [
     exampleFile: 'examples/fix-failing-checks.yml',
     mainJobId: 'fix_failure',
     reusableWorkflow: {
-      inputs: {
-        profile: {
-          description: 'Optional Warp Agent profile name to use for Warp Agent.',
-          required: false,
-          default: ''
-        }
-      },
+      inputs: defaultReusableWorkflowInputs,
       secrets: {
         WARP_API_KEY: {
           description: 'Warp API key used by the Warp Agent.',
@@ -139,13 +133,7 @@ const scenarios = [
     exampleFile: 'examples/suggest-review-fixes.yml',
     mainJobId: 'suggest_review_fixes',
     reusableWorkflow: {
-      inputs: {
-        profile: {
-          description: 'Optional Warp Agent profile name to use for Warp Agent.',
-          required: false,
-          default: ''
-        }
-      },
+      inputs: defaultReusableWorkflowInputs,
       secrets: {
         WARP_API_KEY: {
           description: 'Warp API key used by the Warp Agent.',
@@ -197,18 +185,33 @@ function buildWorkflowCallSecrets(secretsConfig) {
   return secrets
 }
 
-function updateWarpProfileInput(job, hasProfileInput) {
-  if (!hasProfileInput) return
+function updateWarpAgentActionInputs(job, workflowCallInputs) {
+  if (!workflowCallInputs || Object.keys(workflowCallInputs).length === 0) return
   if (!job || !Array.isArray(job.steps)) return
 
   for (const step of job.steps) {
     if (!step || typeof step.uses !== 'string') continue
     if (!step.uses.startsWith('warpdotdev/warp-agent-action@')) continue
-    if (!step.with) continue
 
-    // In the examples, profile is wired to vars.WARP_AGENT_PROFILE.
-    // In the reusable workflow, allow overriding via an input.
-    step.with.profile = "${{ inputs.profile || vars.WARP_AGENT_PROFILE || '' }}"
+    step.with ||= {}
+
+    if ('profile' in workflowCallInputs) {
+      // In the examples, profile is wired to vars.WARP_AGENT_PROFILE.
+      // In the reusable workflow, allow overriding via an input.
+      step.with.profile = "${{ inputs.profile || vars.WARP_AGENT_PROFILE || '' }}"
+    }
+
+    if ('model' in workflowCallInputs) {
+      step.with.model = "${{ inputs.model || vars.WARP_AGENT_MODEL || '' }}"
+    }
+
+    if ('name' in workflowCallInputs) {
+      step.with.name = "${{ inputs.name || vars.WARP_AGENT_NAME || '' }}"
+    }
+
+    if ('mcp' in workflowCallInputs) {
+      step.with.mcp = "${{ inputs.mcp || vars.WARP_AGENT_MCP || '' }}"
+    }
   }
 }
 
@@ -242,6 +245,20 @@ function extractLeadingComments(yamlText) {
   return kept.join('\n')
 }
 
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+function insertOptionalInputsCommentInConsumerTemplate(yamlText, mainJobId) {
+  if (!yamlText || !mainJobId) return yamlText
+  if (yamlText.includes('# These inputs are all optional')) return yamlText
+
+  const jobId = escapeRegExp(mainJobId)
+  const pattern = new RegExp(`(^\\s{2}${jobId}:\\n\\s{4}uses:.*\\n\\s{4}with:\\n)`, 'm')
+
+  return yamlText.replace(pattern, `$1      # These inputs are all optional\n`)
+}
+
 async function generateReusableWorkflow(scenario, exampleYaml) {
   if (!scenario.reusableWorkflow) return
 
@@ -256,10 +273,10 @@ async function generateReusableWorkflow(scenario, exampleYaml) {
   // Clone all jobs from the example
   const jobsClone = deepClone(exampleObj.jobs)
 
-  // Allow overriding the Warp Agent profile via workflow_call inputs.
-  const hasProfileInput = Boolean(scenario.reusableWorkflow.inputs?.profile)
+  // Allow overriding selected Warp Agent inputs via workflow_call inputs.
+  const workflowCallInputs = scenario.reusableWorkflow.inputs
   for (const job of Object.values(jobsClone)) {
-    updateWarpProfileInput(job, hasProfileInput)
+    updateWarpAgentActionInputs(job, workflowCallInputs)
   }
 
   const workflowCall = {}
@@ -318,9 +335,12 @@ async function generateConsumerTemplate(scenario, exampleYaml) {
   const usesRef = `warpdotdev/warp-agent-action/.github/workflows/${scenario.scenarioId}.yml@${usesRefVersion}`
 
   const withBlock = {}
-  if (scenario.reusableWorkflow?.inputs && 'profile' in scenario.reusableWorkflow.inputs) {
-    // Show profile in the template so users know they can override it.
-    withBlock.profile = ''
+  if (scenario.reusableWorkflow?.inputs) {
+    // Show optional inputs in the template so users know they can override them.
+    if ('profile' in scenario.reusableWorkflow.inputs) withBlock.profile = ''
+    if ('model' in scenario.reusableWorkflow.inputs) withBlock.model = ''
+    if ('name' in scenario.reusableWorkflow.inputs) withBlock.name = ''
+    if ('mcp' in scenario.reusableWorkflow.inputs) withBlock.mcp = ''
   }
 
   const secretsBlock = {}
@@ -361,7 +381,8 @@ async function generateConsumerTemplate(scenario, exampleYaml) {
   if (leadingComments) {
     fileContents += leadingComments + '\n'
   }
-  fileContents += yaml.stringify(template, { lineWidth: 0 })
+  const templateYaml = yaml.stringify(template, { lineWidth: 0 })
+  fileContents += insertOptionalInputsCommentInConsumerTemplate(templateYaml, scenario.mainJobId)
 
   await fs.writeFile(outPath, fileContents, 'utf8')
 }

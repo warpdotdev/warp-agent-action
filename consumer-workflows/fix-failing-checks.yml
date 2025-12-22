@@ -31,6 +31,10 @@ jobs:
   fix_failure:
     uses: warpdotdev/warp-agent-action/.github/workflows/fix-failing-checks.yml@v1
     with:
+      # These inputs are all optional
       profile: ''
+      model: ''
+      name: ''
+      mcp: ''
     secrets:
       WARP_API_KEY: ${{ secrets.WARP_API_KEY }}

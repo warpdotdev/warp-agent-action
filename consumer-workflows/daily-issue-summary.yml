@@ -29,7 +29,11 @@ jobs:
   summarize_issues:
     uses: warpdotdev/warp-agent-action/.github/workflows/daily-issue-summary.yml@v1
     with:
+      # These inputs are all optional
       profile: ''
+      model: ''
+      name: ''
+      mcp: ''
     secrets:
       WARP_API_KEY: ${{ secrets.WARP_API_KEY }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
