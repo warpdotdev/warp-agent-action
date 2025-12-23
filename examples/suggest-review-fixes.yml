@@ -55,27 +55,55 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const prompt = `You have a list of review comments in review_comments.json. For each comment:
-            1. Determine if it's a small, straightforward fix (typos, naming, simple refactors, style issues).
-            2. If yes: propose a code suggestion (DO NOT modify files directly). This code suggestion will replace the part of the file included in the review comment, and only that diff hunk.
-            3. If no (too complex, requires design decisions, unclear, cannot be done in a single code suggestion): skip it.
+            const prompt = `You have review comments in review_comments.json. Your task is to generate responses.json containing code suggestions.
 
-            Output a file responses.json with this format:
-            {
-              "<comment_id>": "Your minimal explanation here, followed by a suggestion block"
-            }
+            IMPORTANT CONSTRAINTS:
+            - Do NOT run any git commands (no commits, branches, or pushes)
+            - Do NOT modify any source files directly
+            - ONLY create the responses.json file
 
-            The suggestion block must contain **only the changed code**, with no extra, unchanged context lines before or after the change.
+            FOR EACH COMMENT:
+            1. Read the comment body and diff_hunk
+            2. Decide if it's a simple fix. Simple fixes include:
+               - Typo corrections
+               - Variable/function renames
+               - Adding/removing a single line
+               - Simple style changes (formatting, spacing)
+               - Reverting a small change (when diff_hunk shows the original)
 
-            The format of the suggestion block should be as follows:
+            3. NOT simple (skip these):
+               - Requires reading files beyond the diff_hunk
+               - Needs architectural decisions
+               - Involves multiple files
+               - Comment is a question or discussion (not a change request)
+               - Comment is praise or approval (e.g., "LGTM", "nice!")
+
+            HOW SUGGESTIONS WORK:
+            The suggestion block will COMPLETELY REPLACE the lines shown in the diff_hunk.
+            - Your suggestion ENTIRELY OVERWRITES the diff_hunk content
+            - Include ALL lines you want to keep from the diff_hunk, with your changes applied
+            - Any lines from the diff_hunk not in your suggestion will be DELETED
+            - You cannot add lines outside the diff_hunk scope
+            - PRESERVE EXACT INDENTATION: match the original whitespace (spaces/tabs) exactly
+            - Do not change formatting, line breaks, or whitespace unless that's the requested fix
+
+            OUTPUT FORMAT:
+            Create responses.json as a valid JSON object. Each key is a comment ID, each value is a string containing:
+            - A brief explanation (1 sentence max)
+            - A newline
+            - A suggestion block
+
+            The suggestion block format:
             \`\`\`suggestion
-            <only the code you are proposing as the replacement for the selected lines>
+            <complete replacement for the diff_hunk lines>
             \`\`\`
 
-            As an example:
+            VALID JSON EXAMPLE:
             {
-              "12345678": "Updated the print statement to address feedback, \n\`\`\`suggestion\nprintln!(New version of the print statement here)\n\`\`\`"
+              "12345678": "Fixed the typo.\\n\`\`\`suggestion\\nprintln!(\\"Hello, world!\\\");\\n\`\`\`"
             }
+
+            If no comments are simple enough, output: {}
             `;
             core.setOutput('prompt', prompt);
 
@@ -85,6 +113,15 @@ jobs:
           warp_api_key: ${{ secrets.WARP_API_KEY }}
           profile: ${{ vars.WARP_AGENT_PROFILE }}
           prompt: ${{ steps.prompt.outputs.prompt }}
+
+      - name: Validate responses.json
+        run: |
+          if [ -f responses.json ]; then
+            python3 -c "import json; json.load(open('responses.json'))" || {
+              echo "Invalid JSON in responses.json, replacing with empty object"
+              echo "{}" > responses.json
+            }
+          fi
 
       - name: Reply to comments
         uses: actions/github-script@v7
@@ -101,7 +138,8 @@ jobs:
             try {
               responses = JSON.parse(fs.readFileSync('responses.json', 'utf8'));
             } catch (e) {
-              core.info('Failed to parse responses.json', e);
+              core.error(`Failed to parse responses.json: ${e.message}`);
+              core.info(`File contents: ${fs.readFileSync('responses.json', 'utf8').substring(0, 500)}`);
               return;
             }
 
