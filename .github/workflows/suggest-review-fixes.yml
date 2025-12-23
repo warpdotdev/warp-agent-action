@@ -83,7 +83,7 @@ jobs:
                - Reverting a small change (when diff_hunk shows the original)
 
             3. NOT simple (skip these):
-               - Requires reading files beyond the diff_hunk
+               - Involves updating lines beyond this diff hunk to appropriately address (e.g. "use consts instead of magic numbers in this PR")
                - Needs architectural decisions
                - Involves multiple files
                - Comment is a question or discussion (not a change request)
