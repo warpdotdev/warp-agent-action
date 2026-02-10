@@ -29842,10 +29842,10 @@ async function runAgent() {
     let command;
     switch (channel) {
         case 'stable':
-            command = 'warp-cli';
+            command = 'oz';
             break;
         case 'preview':
-            command = 'warp-cli-preview';
+            command = 'oz-preview';
             break;
         default:
             throw new Error(`Unsupported channel ${channel}`);
@@ -29911,9 +29911,9 @@ async function runAgent() {
 // Install the Warp CLI, using the specified channel and version.
 async function installWarp(channel, version) {
     await coreExports.group('Installing Warp', async () => {
-        const warpDeb = await downloadWarpDeb(channel, version);
+        const ozDeb = await downloadWarpDeb(channel, version);
         // Install the .deb file, and then use apt-get to install any dependencies.
-        await execExports.exec('sudo', ['dpkg', '-i', warpDeb]);
+        await execExports.exec('sudo', ['dpkg', '-i', ozDeb]);
         await execExports.exec('sudo', ['apt-get', '-f', 'install']);
     });
 }
@@ -29967,19 +29967,19 @@ async function downloadWarpDeb(channel, version) {
             debVersion = version;
             version = 'v' + version;
         }
-        debUrl = `https://releases.warp.dev/${channel}/${version}/warp-cli-${channel}_${debVersion}_${debArch}.deb`;
+        debUrl = `https://releases.warp.dev/${channel}/${version}/oz_${channel}_${debVersion}_${debArch}.deb`;
     }
     const cacheVersion = `${channel}-${version}`;
-    let cachedDeb = toolCacheExports.find('warp-cli', cacheVersion);
+    let cachedDeb = toolCacheExports.find('oz', cacheVersion);
     if (!cachedDeb) {
         coreExports.debug(`Downloading from ${debUrl}...`);
         const downloadedDeb = await toolCacheExports.downloadTool(debUrl);
-        cachedDeb = await toolCacheExports.cacheFile(downloadedDeb, 'warp-cli.deb', 'warp-cli', cacheVersion);
+        cachedDeb = await toolCacheExports.cacheFile(downloadedDeb, 'oz.deb', 'oz', cacheVersion);
     }
     else {
         coreExports.debug('Using cached .deb package');
     }
-    return path.join(cachedDeb, 'warp-cli.deb');
+    return path.join(cachedDeb, 'oz.deb');
 }
 // Dump the Warp log file contents if it exists.
 async function logWarpLogFile(channel) {

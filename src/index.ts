@@ -30,10 +30,10 @@ async function runAgent(): Promise<void> {
   let command: string
   switch (channel) {
     case 'stable':
-      command = 'warp-cli'
+      command = 'oz'
       break
     case 'preview':
-      command = 'warp-cli-preview'
+      command = 'oz-preview'
       break
     default:
       throw new Error(`Unsupported channel ${channel}`)
@@ -111,9 +111,9 @@ async function runAgent(): Promise<void> {
 // Install the Warp CLI, using the specified channel and version.
 async function installWarp(channel: string, version: string): Promise<void> {
   await core.group('Installing Warp', async () => {
-    const warpDeb = await downloadWarpDeb(channel, version)
+    const ozDeb = await downloadWarpDeb(channel, version)
     // Install the .deb file, and then use apt-get to install any dependencies.
-    await exec.exec('sudo', ['dpkg', '-i', warpDeb])
+    await exec.exec('sudo', ['dpkg', '-i', ozDeb])
     await exec.exec('sudo', ['apt-get', '-f', 'install'])
   })
 }
@@ -172,19 +172,19 @@ async function downloadWarpDeb(channel: string, version: string): Promise<string
       debVersion = version
       version = 'v' + version
     }
-    debUrl = `https://releases.warp.dev/${channel}/${version}/warp-cli-${channel}_${debVersion}_${debArch}.deb`
+    debUrl = `https://releases.warp.dev/${channel}/${version}/oz_${channel}_${debVersion}_${debArch}.deb`
   }
 
   const cacheVersion = `${channel}-${version}`
-  let cachedDeb = tc.find('warp-cli', cacheVersion)
+  let cachedDeb = tc.find('oz', cacheVersion)
   if (!cachedDeb) {
     core.debug(`Downloading from ${debUrl}...`)
     const downloadedDeb = await tc.downloadTool(debUrl)
-    cachedDeb = await tc.cacheFile(downloadedDeb, 'warp-cli.deb', 'warp-cli', cacheVersion)
+    cachedDeb = await tc.cacheFile(downloadedDeb, 'oz.deb', 'oz', cacheVersion)
   } else {
     core.debug('Using cached .deb package')
   }
-  return path.join(cachedDeb, 'warp-cli.deb')
+  return path.join(cachedDeb, 'oz.deb')
 }
 
 // Dump the Warp log file contents if it exists.

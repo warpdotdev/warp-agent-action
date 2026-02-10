@@ -1,5 +1,9 @@
 # Warp Agent Action
 
+> **⚠️ DEPRECATED**: This repository has been deprecated in favor of
+> [oz-agent-action](https://github.com/warpdotdev/oz-agent-action). Please update your workflows to
+> use `warpdotdev/oz-agent-action@v1` instead.
+
 This action supports running the Warp Agent in GitHub Actions. It wraps the
 [Warp CLI](https://docs.warp.dev/developers/cli) with:
 
